@@ -31,11 +31,11 @@ public class EmployeeEntity implements Serializable {
     @Column(nullable = false, length = 20)
     private String lastName;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EmployeePosition employeePosition;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Grade grade;
 
     @ManyToOne

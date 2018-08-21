@@ -18,7 +18,6 @@ public class EmployeeMapper {
                     .lastName(employeeEntity.getLastName())
                     .employeePosition(employeeEntity.getEmployeePosition())
                     .grade(employeeEntity.getGrade())
-                    .superiorId(employeeEntity.getSuperior().getId())
                     .build();
         }
         return null;

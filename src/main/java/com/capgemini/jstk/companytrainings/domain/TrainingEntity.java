@@ -29,14 +29,14 @@ public class TrainingEntity implements Serializable {
     @Column(nullable = false, length = 30)
     private String title;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TrainingType trainingType;
 
     @Column(nullable = false)
     private Double duration;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TrainingCharacter trainingCharacter;
 
