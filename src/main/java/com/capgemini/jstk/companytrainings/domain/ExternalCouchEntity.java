@@ -3,23 +3,25 @@ package com.capgemini.jstk.companytrainings.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "EXTERNAL_COUCH")
-public class ExternalCouchEntity {
+public class ExternalCouchEntity implements Serializable {
+
+    @Version
+    private Long version;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @Version
-    private Long version;
 
     @Column(nullable = false, length = 20)
     private String firstName;

@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,10 +13,11 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "TRAINING")
-public class TrainingEntity {
+public class TrainingEntity implements Serializable {
 
     @Version
     private Long version;
