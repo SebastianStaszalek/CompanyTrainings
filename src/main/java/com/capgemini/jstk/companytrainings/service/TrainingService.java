@@ -21,6 +21,8 @@ public interface TrainingService {
 
     Set<EmployeeTO> findAllStudentsByTrainingId(Long id);
 
+    Set<EmployeeTO> findAllCoachesByTrainingId(Long id);
+
     void addStudentToTraining(TrainingTO training, EmployeeTO employee);
 
     void addCoachToTraining(TrainingTO training, EmployeeTO employee);

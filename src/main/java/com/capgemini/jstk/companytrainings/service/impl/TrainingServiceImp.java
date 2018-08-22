@@ -2,8 +2,10 @@ package com.capgemini.jstk.companytrainings.service.impl;
 
 import com.capgemini.jstk.companytrainings.domain.EmployeeEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
+import com.capgemini.jstk.companytrainings.domain.enums.Grade;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
+import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
 import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
@@ -27,7 +29,8 @@ import java.util.stream.Collectors;
 public class TrainingServiceImp implements TrainingService {
 
     private static final int ALLOWED_NUMBER_OF_TRAININGS = 3;
-    private static final int ALLOWED_COST_OF_TRAININGS = 15000;
+    private static final int BUDGET_PER_STUDENT = 15000;
+    private static final int BUDGET_FOR_STUDENT_WITH_HIGHER_GRADE = 50000;
 
 
     EmployeeRepository employeeRepository;
@@ -82,19 +85,35 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findById(id);
         return employeeMapper.map2TOSet(trainingEntity.getStudents());
     }
-//TODO: dlaczego year jest deprecated?
+
+    @Override
+    public Set<EmployeeTO> findAllCoachesByTrainingId(Long id) {
+        TrainingEntity trainingEntity = trainingRepository.findById(id);
+        return employeeMapper.map2TOSet(trainingEntity.getCouches());
+    }
+
+    //TODO: dlaczego year jest deprecated?
     @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
         TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
 
-        Set<TrainingEntity> completedTrainings = employeeEntity.getTrainingsAsStudent();
-        List<TrainingEntity> trainingsInTheYear = completedTrainings.stream()
+        Set<TrainingEntity> employeeTrainings = employeeEntity.getTrainingsAsStudent();
+        List<TrainingEntity> trainingsInTheYear = employeeTrainings.stream()
                 .filter(time -> time.getStartDate().getYear() == trainingEntity.getStartDate().getYear())
                 .collect(Collectors.toList());
 
-        if(trainingsInTheYear.size() >= ALLOWED_NUMBER_OF_TRAININGS) {
-            throw new EmployeeTrainingException(Message.TRAININGS_EXCEEDED);
+        Set<EmployeeEntity> students = trainingEntity.getStudents();
+        students.stream()
+                .filter(student -> student.getId().equals(employeeEntity.getId()))
+                .findAny()
+                .ifPresent(student -> {throw new EmployeeTrainingException(Message.STUDENT_ALREADY_EXISTS);});
+
+        Set<EmployeeEntity> coaches = trainingEntity.getCouches();
+        boolean exists = coaches.stream()
+                .anyMatch(coach -> coach.getId().equals(employeeEntity.getId()));
+        if(exists) {
+            throw new EmployeeTrainingException(Message.STUDENT_ALREADY_ADDED_AS_COUCH);
         }
 
 
@@ -103,11 +122,22 @@ public class TrainingServiceImp implements TrainingService {
             costOfCompletedTrainings += tr.getCostPerStudent();
         }
 
-        if(costOfCompletedTrainings + training.getCostPerStudent() > ALLOWED_COST_OF_TRAININGS) {
-            throw new EmployeeTrainingException(Message.COST_EXCEEDED);
+        boolean higherGrade = false;
+
+        if(employeeEntity.getGrade() == Grade.FOURTH || employeeEntity.getGrade() == Grade.FIFTH) {
+            higherGrade = true;
+            if (costOfCompletedTrainings + training.getCostPerStudent() > BUDGET_FOR_STUDENT_WITH_HIGHER_GRADE ) {
+                throw new BudgetExceededException(Message.EXTRA_BUDGET_EXCEEDED);
+            }
+        } else if(costOfCompletedTrainings + training.getCostPerStudent() > BUDGET_PER_STUDENT) {
+            throw new BudgetExceededException(Message.BUDGET_EXCEEDED);
         }
 
-
+        if(!higherGrade) {
+            if (trainingsInTheYear.size() >= ALLOWED_NUMBER_OF_TRAININGS) {
+                throw new EmployeeTrainingException(Message.TRAININGS_EXCEEDED);
+            }
+        }
 
 
     trainingEntity.addStudent(employeeEntity);
@@ -115,6 +145,21 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public void addCoachToTraining(TrainingTO training, EmployeeTO employee) {
+        TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
+        EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
 
+        Set<EmployeeEntity> students = trainingEntity.getStudents();
+        students.stream()
+                .filter(student -> student.getId().equals(employeeEntity.getId()))
+                .findAny()
+                .ifPresent(student -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_ADDED_AS_STUDENT);});
+
+        Set<EmployeeEntity> coaches = trainingEntity.getCouches();
+        coaches.stream()
+                .filter(coach -> coach.getId().equals(employeeEntity.getId()))
+                .findAny()
+                .ifPresent(student -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_EXISTS);});
+
+        trainingEntity.addCouch(employeeEntity);
     }
 }
