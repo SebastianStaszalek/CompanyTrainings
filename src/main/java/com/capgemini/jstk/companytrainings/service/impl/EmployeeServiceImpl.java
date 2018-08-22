@@ -13,13 +13,13 @@ import java.util.List;
 
 @Service
 @Transactional
-public class EmployeeServiceImp implements EmployeeService {
+public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeMapper employeeMapper;
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    public EmployeeServiceImp(EmployeeMapper employeeMapper, EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeMapper employeeMapper, EmployeeRepository employeeRepository) {
         this.employeeMapper = employeeMapper;
         this.employeeRepository = employeeRepository;
     }
@@ -35,9 +35,32 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 //TODO: jak zrobic update w tym przypadku zeby nie stracic powiazan?
     @Override
-    public EmployeeTO saveOrUpdate(EmployeeTO employee) {
+    public EmployeeTO save(EmployeeTO employee) {
+        Long superiorId = employee.getSuperiorId();
+
+
         EmployeeEntity employeeEntity = employeeMapper.map(employee);
+
+        if (superiorId != null) {
+            EmployeeEntity superior = employeeRepository.findById(superiorId);
+            employeeEntity.setSuperior(superior);
+        }
         return employeeMapper.map(employeeRepository.save(employeeEntity));
+    }
+
+    @Override
+    public EmployeeTO update(EmployeeTO employee) {
+        Long superiorId = employee.getSuperiorId();
+        EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
+        if (superiorId != null) {
+            EmployeeEntity superior = employeeRepository.findById(superiorId);
+            employeeEntity.setSuperior(superior);
+        }
+
+        EmployeeEntity employeeToUpdate = employeeMapper.map(employee, employeeEntity);
+
+        return employeeMapper.map(employeeRepository.save(employeeToUpdate));
+
     }
 
     @Override

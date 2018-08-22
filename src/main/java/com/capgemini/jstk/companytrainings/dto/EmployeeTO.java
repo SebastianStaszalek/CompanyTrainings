@@ -12,6 +12,7 @@ import lombok.*;
 public class EmployeeTO {
 
     private Long id;
+    private Long version;
     private String firstName;
     private String lastName;
     private EmployeePosition employeePosition;

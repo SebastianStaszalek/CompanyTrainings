@@ -15,6 +15,7 @@ import java.util.Set;
 public class TrainingTO {
 
     private Long id;
+    private Long version;
     private String title;
     private TrainingType trainingType;
     private Double duration;
@@ -24,6 +25,4 @@ public class TrainingTO {
     private int costPerStudent;
     private String tags;
 
-    private Set<Long> studentsIds;
-    private Set<Long> couchesIds;
 }

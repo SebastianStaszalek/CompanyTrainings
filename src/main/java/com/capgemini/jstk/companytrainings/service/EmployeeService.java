@@ -10,7 +10,9 @@ public interface EmployeeService {
 
     List<EmployeeTO> getAllEmployees();
 
-    EmployeeTO saveOrUpdate(EmployeeTO employee);
+    EmployeeTO save(EmployeeTO employee);
+
+    EmployeeTO update(EmployeeTO employee);
 
     void deleteEmployee(EmployeeTO employee);
 

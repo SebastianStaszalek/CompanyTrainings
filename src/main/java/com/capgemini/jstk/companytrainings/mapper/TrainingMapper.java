@@ -28,17 +28,22 @@ public class TrainingMapper {
     }
 
     public TrainingEntity map(TrainingTO trainingTO) {
+        return map(trainingTO, new TrainingEntity());
+    }
+
+    public TrainingEntity map(TrainingTO trainingTO, TrainingEntity trainingEntity) {
         if(trainingTO != null) {
-            return TrainingEntity.builder()
-                    .id(trainingTO.getId())
-                    .title(trainingTO.getTitle())
-                    .trainingType(trainingTO.getTrainingType())
-                    .duration(trainingTO.getDuration())
-                    .startDate(trainingTO.getStartDate())
-                    .endDate(trainingTO.getEndDate())
-                    .costPerStudent(trainingTO.getCostPerStudent())
-                    .tags(trainingTO.getTags())
-                    .build();
+            trainingEntity.setId(trainingTO.getId());
+            trainingEntity.setVersion(trainingTO.getVersion());
+            trainingEntity.setTitle(trainingTO.getTitle());
+            trainingEntity.setTrainingType(trainingTO.getTrainingType());
+            trainingEntity.setDuration(trainingTO.getDuration());
+            trainingEntity.setStartDate(trainingTO.getStartDate());
+            trainingEntity.setEndDate(trainingTO.getEndDate());
+            trainingEntity.setCostPerStudent(trainingTO.getCostPerStudent());
+            trainingEntity.setTags(trainingTO.getTags());
+
+            return trainingEntity;
         }
         return null;
     }

@@ -13,6 +13,7 @@ public interface EmployeeRepository extends CrudRepository<EmployeeEntity, Long>
 
     List<EmployeeEntity> findAll();
 
+    @SuppressWarnings("unchecked")
     EmployeeEntity save(EmployeeEntity employee);
 
     void deleteById(Long id);

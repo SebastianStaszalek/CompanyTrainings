@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class EmployeeMapper {
-//TODO: czy w TO potrzebujemy superior ID?
     public EmployeeTO map(EmployeeEntity employeeEntity) {
         if(employeeEntity != null) {
             return EmployeeTO.builder()
                     .id(employeeEntity.getId())
+                    .version(employeeEntity.getVersion())
                     .firstName(employeeEntity.getFirstName())
                     .lastName(employeeEntity.getLastName())
                     .employeePosition(employeeEntity.getEmployeePosition())
@@ -24,14 +24,19 @@ public class EmployeeMapper {
     }
 
     public EmployeeEntity map(EmployeeTO employeeTO) {
+        return map(employeeTO, new EmployeeEntity());
+    }
+
+    public EmployeeEntity map(EmployeeTO employeeTO, EmployeeEntity employeeEntity) {
         if(employeeTO != null) {
-            return EmployeeEntity.builder()
-                    .id(employeeTO.getId())
-                    .firstName(employeeTO.getFirstName())
-                    .lastName(employeeTO.getLastName())
-                    .employeePosition(employeeTO.getEmployeePosition())
-                    .grade(employeeTO.getGrade())
-                    .build();
+            employeeEntity.setId(employeeTO.getId());
+            employeeEntity.setVersion(employeeTO.getVersion());
+            employeeEntity.setFirstName(employeeTO.getFirstName());
+            employeeEntity.setLastName(employeeTO.getLastName());
+            employeeEntity.setEmployeePosition(employeeTO.getEmployeePosition());
+            employeeEntity.setGrade(employeeTO.getGrade());
+
+            return employeeEntity;
         }
         return null;
     }

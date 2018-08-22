@@ -55,5 +55,21 @@ public class EmployeeEntity implements Serializable {
     )
     private Set<TrainingEntity> trainingsAsStudent = new HashSet<>();
 
+    public void addTrainingAsCouch(TrainingEntity newTraining) {
+        this.trainingsAsCouch.add(newTraining);
+        newTraining.updateCouchReference(this);
+    }
 
+    protected void updateTrainigAsCouchReference(TrainingEntity trainingEntity) {
+        this.trainingsAsCouch.add(trainingEntity);
+    }
+
+    public void addTrainingAsStudent(TrainingEntity newTraining) {
+        this.trainingsAsStudent.add(newTraining);
+        newTraining.updateStudentReference(this);
+    }
+
+    protected void updateTrainigAsStudentReference(TrainingEntity trainingEntity) {
+        this.trainingsAsStudent.add(trainingEntity);
+    }
 }

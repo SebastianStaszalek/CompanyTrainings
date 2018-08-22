@@ -61,5 +61,22 @@ public class TrainingEntity implements Serializable {
     @ManyToMany(mappedBy = "trainings")
     private Set<ExternalCouchEntity> externalCouches = new HashSet<>();
 
+    public void addCouch(EmployeeEntity newCouch) {
+        this.couches.add(newCouch);
+        newCouch.updateTrainigAsCouchReference(this);
+    }
+
+    protected void updateCouchReference(EmployeeEntity employeeEntity) {
+        this.couches.add(employeeEntity);
+    }
+
+    public void addStudent(EmployeeEntity newStudent) {
+        this.students.add(newStudent);
+        newStudent.updateTrainigAsStudentReference(this);
+    }
+
+    protected void updateStudentReference(EmployeeEntity employeeEntity) {
+        this.students.add(employeeEntity);
+    }
 
 }
