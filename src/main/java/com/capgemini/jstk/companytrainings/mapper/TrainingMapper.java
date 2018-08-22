@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,6 +19,7 @@ public class TrainingMapper {
                     .title(trainingEntity.getTitle())
                     .trainingType(trainingEntity.getTrainingType())
                     .duration(trainingEntity.getDuration())
+                    .trainingCharacter(trainingEntity.getTrainingCharacter())
                     .startDate(trainingEntity.getStartDate())
                     .endDate(trainingEntity.getEndDate())
                     .costPerStudent(trainingEntity.getCostPerStudent())
@@ -38,6 +40,7 @@ public class TrainingMapper {
             trainingEntity.setTitle(trainingTO.getTitle());
             trainingEntity.setTrainingType(trainingTO.getTrainingType());
             trainingEntity.setDuration(trainingTO.getDuration());
+            trainingEntity.setTrainingCharacter(trainingTO.getTrainingCharacter());
             trainingEntity.setStartDate(trainingTO.getStartDate());
             trainingEntity.setEndDate(trainingTO.getEndDate());
             trainingEntity.setCostPerStudent(trainingTO.getCostPerStudent());
@@ -51,4 +54,5 @@ public class TrainingMapper {
     public List<TrainingTO> map2TO(List<TrainingEntity> trainingEntities) {
         return trainingEntities.stream().map(this::map).collect(Collectors.toList());
     }
+
 }

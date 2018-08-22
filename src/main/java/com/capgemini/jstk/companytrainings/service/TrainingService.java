@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TrainingService {
 
@@ -17,6 +18,8 @@ public interface TrainingService {
     TrainingTO update(TrainingTO training);
 
     void deleteTraining(TrainingTO training);
+
+    Set<EmployeeTO> findAllStudentsByTrainingId(Long id);
 
     void addStudentToTraining(TrainingTO training, EmployeeTO employee);
 

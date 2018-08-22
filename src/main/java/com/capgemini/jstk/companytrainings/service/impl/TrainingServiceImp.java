@@ -6,6 +6,7 @@ import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
 import com.capgemini.jstk.companytrainings.exception.message.Message;
+import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
 import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.EmployeeRepository;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepository;
@@ -19,14 +20,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 //TODO: null na get?
 //TODO: jak testowac relacje skoro nie mapujemy wszystkich id?
+//TODO: usun sygnatury metod z repositories
 
 @Service
 @Transactional
 public class TrainingServiceImp implements TrainingService {
 
     private static final int ALLOWED_NUMBER_OF_TRAININGS = 3;
+    private static final int ALLOWED_COST_OF_TRAININGS = 15000;
+
 
     EmployeeRepository employeeRepository;
+    EmployeeMapper employeeMapper;
 
     TrainingMapper trainingMapper;
     TrainingRepository trainingRepository;
@@ -34,10 +39,11 @@ public class TrainingServiceImp implements TrainingService {
 
     @Autowired
     public TrainingServiceImp(EmployeeRepository employeeRepository, TrainingMapper trainingMapper,
-                              TrainingRepository trainingRepository) {
+                              TrainingRepository trainingRepository, EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.trainingMapper = trainingMapper;
         this.trainingRepository = trainingRepository;
+        this.employeeMapper = employeeMapper;
     }
 
     @Override
@@ -72,6 +78,12 @@ public class TrainingServiceImp implements TrainingService {
     }
 
     @Override
+    public Set<EmployeeTO> findAllStudentsByTrainingId(Long id) {
+        TrainingEntity trainingEntity = trainingRepository.findById(id);
+        return employeeMapper.map2TOSet(trainingEntity.getStudents());
+    }
+//TODO: dlaczego year jest deprecated?
+    @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
         TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
@@ -84,6 +96,18 @@ public class TrainingServiceImp implements TrainingService {
         if(trainingsInTheYear.size() >= ALLOWED_NUMBER_OF_TRAININGS) {
             throw new EmployeeTrainingException(Message.TRAININGS_EXCEEDED);
         }
+
+
+        int costOfCompletedTrainings = 0;
+        for (TrainingEntity tr : trainingsInTheYear) {
+            costOfCompletedTrainings += tr.getCostPerStudent();
+        }
+
+        if(costOfCompletedTrainings + training.getCostPerStudent() > ALLOWED_COST_OF_TRAININGS) {
+            throw new EmployeeTrainingException(Message.COST_EXCEEDED);
+        }
+
+
 
 
     trainingEntity.addStudent(employeeEntity);

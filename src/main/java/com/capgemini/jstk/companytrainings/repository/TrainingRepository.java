@@ -17,4 +17,5 @@ public interface TrainingRepository extends CrudRepository<TrainingEntity, Long>
     TrainingEntity save(TrainingEntity training);
 
     void deleteById(Long id);
+
 }

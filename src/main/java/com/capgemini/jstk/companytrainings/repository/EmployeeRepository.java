@@ -17,4 +17,5 @@ public interface EmployeeRepository extends CrudRepository<EmployeeEntity, Long>
     EmployeeEntity save(EmployeeEntity employee);
 
     void deleteById(Long id);
+
 }
