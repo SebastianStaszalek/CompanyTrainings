@@ -35,7 +35,7 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     @ManyToOne
     private EmployeeEntity superior;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "EMPLOYEES_AS_COUCHES",
             joinColumns = {@JoinColumn(name = "EMPLOYEE_ID")},
             inverseJoinColumns = {@JoinColumn(name = "TRAINING_ID")}

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO findTrainingById(Long id) {
-        return trainingMapper.map(trainingRepository.findById(id));
+        return trainingMapper.map(trainingRepository.findOne(id));
     }
 
     @Override
@@ -69,7 +70,7 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO update(TrainingTO training) {
-        TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
+        TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
 
         if(!training.getVersion().equals(trainingEntity.getVersion())) {
             throw new OptimisticLockException();
@@ -83,26 +84,26 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public void deleteTraining(TrainingTO training) {
-        trainingRepository.deleteById(training.getId());
+        trainingRepository.delete(training.getId());
     }
 
     @Override
     public Set<EmployeeTO> findAllStudentsByTrainingId(Long id) {
-        TrainingEntity trainingEntity = trainingRepository.findById(id);
+        TrainingEntity trainingEntity = trainingRepository.findOne(id);
         return employeeMapper.map2TOSet(trainingEntity.getStudents());
     }
 
     @Override
     public Set<EmployeeTO> findAllCoachesByTrainingId(Long id) {
-        TrainingEntity trainingEntity = trainingRepository.findById(id);
+        TrainingEntity trainingEntity = trainingRepository.findOne(id);
         return employeeMapper.map2TOSet(trainingEntity.getCouches());
     }
 
     //TODO: podmienic na nowszy typ daty!?
     @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
-        TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
-        EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
+        TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+        EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
         Set<EmployeeEntity> students = trainingEntity.getStudents();
         students.stream()
@@ -149,8 +150,8 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public void addCoachToTraining(TrainingTO training, EmployeeTO employee) {
-        TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
-        EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
+        TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+        EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
         Set<EmployeeEntity> students = trainingEntity.getStudents();
         students.stream()
@@ -165,5 +166,16 @@ public class TrainingServiceImp implements TrainingService {
                 .ifPresent(student -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_EXISTS);});
 
         trainingEntity.addCouch(employeeEntity);
+    }
+
+    @Override
+    public List<TrainingTO> findTrainingsByTag(String tag) {
+        List<TrainingEntity> trainings = trainingRepository.findTrainingsByTagsQueryDSL(tag);
+        return trainingMapper.map2TO(trainings);
+    }
+
+    @Override
+    public Double findSumOfTrainingHoursByCoachAndYear(Long id, Date date) {
+        return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, date);
     }
 }

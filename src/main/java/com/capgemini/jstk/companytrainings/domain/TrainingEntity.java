@@ -45,7 +45,7 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
     @Column(length = 245)
     private String tags;
 
-    @ManyToMany(mappedBy = "trainingsAsCouch")
+    @ManyToMany(mappedBy = "trainingsAsCouch", fetch = FetchType.EAGER)
     private Set<EmployeeEntity> couches = new HashSet<>();
 
     @ManyToMany(mappedBy = "trainingsAsStudent")
@@ -71,5 +71,6 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
     protected void updateStudentReference(EmployeeEntity employeeEntity) {
         this.students.add(employeeEntity);
     }
+
 
 }

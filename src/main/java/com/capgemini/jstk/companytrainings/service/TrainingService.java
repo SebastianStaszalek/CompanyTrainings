@@ -4,6 +4,7 @@ package com.capgemini.jstk.companytrainings.service;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -26,4 +27,8 @@ public interface TrainingService {
     void addStudentToTraining(TrainingTO training, EmployeeTO employee);
 
     void addCoachToTraining(TrainingTO training, EmployeeTO employee);
+
+    List<TrainingTO> findTrainingsByTag(String tag);
+
+    Double findSumOfTrainingHoursByCoachAndYear(Long id, Date date);
 }

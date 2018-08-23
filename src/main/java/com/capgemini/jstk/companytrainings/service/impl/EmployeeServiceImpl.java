@@ -26,7 +26,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeTO findEmployeeById(Long id) {
-        return employeeMapper.map(employeeRepository.findById(id));
+        return employeeMapper.map(employeeRepository.findOne(id));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeEntity employeeEntity = employeeMapper.map(employee);
 
         if (superiorId != null) {
-            EmployeeEntity superior = employeeRepository.findById(superiorId);
+            EmployeeEntity superior = employeeRepository.findOne(superiorId);
             employeeEntity.setSuperior(superior);
         }
         return employeeMapper.map(employeeRepository.save(employeeEntity));
@@ -51,9 +51,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeTO update(EmployeeTO employee) {
         Long superiorId = employee.getSuperiorId();
-        EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
+        EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
         if (superiorId != null) {
-            EmployeeEntity superior = employeeRepository.findById(superiorId);
+            EmployeeEntity superior = employeeRepository.findOne(superiorId);
             employeeEntity.setSuperior(superior);
         }
 
@@ -65,6 +65,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteEmployee(EmployeeTO employee) {
-        employeeRepository.deleteById(employee.getId());
+        employeeRepository.delete(employee.getId());
     }
 }

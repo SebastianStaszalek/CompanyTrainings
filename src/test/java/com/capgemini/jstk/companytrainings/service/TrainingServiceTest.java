@@ -12,13 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = "spring.profiles.active=mysql")
+@SpringBootTest(properties = "spring.profiles.active=hsql")
 public class TrainingServiceTest {
 
     @Autowired
@@ -327,6 +329,63 @@ public class TrainingServiceTest {
         //when
         trainingService.addStudentToTraining(savedTraining, savedEmployee);
         trainingService.addCoachToTraining(savedTraining, savedEmployee);
+    }
+
+    @Test
+    public void shouldFindTrainingsByTag() {
+        //update
+        TrainingTO training1 = testTO.createFirstTraining();
+        TrainingTO training2 = testTO.createFirstTraining();
+        TrainingTO training3 = testTO.createFirstTraining();
+
+        training1.setTags("html, java, js");
+        training2.setTags("angular, html, agile");
+        training3.setTags("http");
+
+        trainingService.save(training1);
+        trainingService.save(training2);
+        trainingService.save(training3);
+
+        //when
+        String tagToSearch = "html";
+
+        List<TrainingTO> trainingsList = trainingService.findTrainingsByTag(tagToSearch);
+
+        //then
+        assertThat(trainingsList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldFindSumOfTrainingsHoursByCouchAndYear() {
+        //given
+        EmployeeTO employee = testTO.createFirstEmployee();
+        EmployeeTO savedEmployee = employeeService.save(employee);
+
+        TrainingTO training1 = testTO.createFirstTraining();
+        TrainingTO training2 = testTO.createFirstTraining();
+        TrainingTO training3 = testTO.createFirstTraining();
+
+        training1.setDuration(3D);
+        training2.setDuration(2.5D);
+        training3.setDuration(2.5D);
+
+        training1.setStartDate(Date.valueOf("2017-02-10"));
+        training2.setStartDate(Date.valueOf("2018-02-10"));
+        training3.setStartDate(Date.valueOf("2018-06-10"));
+
+        TrainingTO savedTraining1 = trainingService.save(training1);
+        TrainingTO savedTraining2 = trainingService.save(training2);
+        TrainingTO savedTraining3 = trainingService.save(training3);
+
+        trainingService.addCoachToTraining(savedTraining1, savedEmployee);
+        trainingService.addCoachToTraining(savedTraining2, savedEmployee);
+        trainingService.addCoachToTraining(savedTraining3, savedEmployee);
+
+        //when
+        Double sum = trainingService.findSumOfTrainingHoursByCoachAndYear(savedEmployee.getId(), Date.valueOf("2018-10-05"));
+
+        //then
+        assertThat(sum).isEqualTo(5D);
     }
 
 
