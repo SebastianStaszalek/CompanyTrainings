@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-//TODO: co z DirtyContext?
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = "spring.profiles.active=hsql")
 public class EmployeeServiceTest {
@@ -65,10 +65,11 @@ public class EmployeeServiceTest {
         savedEmployee.setEmployeePosition(EmployeePosition.ACCOUNTANT);
 
         EmployeeTO updatedEmployee = employeeService.update(savedEmployee);
-
+        //EmployeeTO newVersionEmployee = employeeService.findEmployeeById(savedEmployee.getId());
         //then
         assertThat(savedEmployee.getId()).isEqualTo(updatedEmployee.getId());
-        //assertThat(savedEmployee.getVersion()).isNotEqualTo(updatedEmployee.getVersion());
+        assertThat(savedEmployee.getVersion()).isNotEqualTo(updatedEmployee.getVersion());
+        //assertThat(savedEmployee.getVersion()).isNotEqualTo(newVersionEmployee.getVersion());
     }
 
     @Test

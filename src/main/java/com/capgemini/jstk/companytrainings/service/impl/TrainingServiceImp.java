@@ -16,11 +16,12 @@ import com.capgemini.jstk.companytrainings.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-//TODO: null na get?
+
 //TODO: jak testowac relacje skoro nie mapujemy wszystkich id?
 //TODO: usun sygnatury metod z repositories
 
@@ -70,9 +71,14 @@ public class TrainingServiceImp implements TrainingService {
     public TrainingTO update(TrainingTO training) {
         TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
 
+        if(!training.getVersion().equals(trainingEntity.getVersion())) {
+            throw new OptimisticLockException();
+        }
+
         TrainingEntity trainingToUpdate = trainingMapper.map(training, trainingEntity);
 
-        return trainingMapper.map(trainingRepository.save(trainingToUpdate));
+        return trainingMapper.map(trainingToUpdate);
+        //return trainingMapper.map(trainingRepository.save(trainingToUpdate));
     }
 
     @Override
@@ -92,16 +98,11 @@ public class TrainingServiceImp implements TrainingService {
         return employeeMapper.map2TOSet(trainingEntity.getCouches());
     }
 
-    //TODO: dlaczego year jest deprecated?
+    //TODO: podmienic na nowszy typ daty!?
     @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
         TrainingEntity trainingEntity = trainingRepository.findById(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findById(employee.getId());
-
-        Set<TrainingEntity> employeeTrainings = employeeEntity.getTrainingsAsStudent();
-        List<TrainingEntity> trainingsInTheYear = employeeTrainings.stream()
-                .filter(time -> time.getStartDate().getYear() == trainingEntity.getStartDate().getYear())
-                .collect(Collectors.toList());
 
         Set<EmployeeEntity> students = trainingEntity.getStudents();
         students.stream()
@@ -116,6 +117,10 @@ public class TrainingServiceImp implements TrainingService {
             throw new EmployeeTrainingException(Message.STUDENT_ALREADY_ADDED_AS_COUCH);
         }
 
+        Set<TrainingEntity> employeeTrainings = employeeEntity.getTrainingsAsStudent();
+        List<TrainingEntity> trainingsInTheYear = employeeTrainings.stream()
+                .filter(time -> time.getStartDate().getYear() == trainingEntity.getStartDate().getYear())
+                .collect(Collectors.toList());
 
         int costOfCompletedTrainings = 0;
         for (TrainingEntity tr : trainingsInTheYear) {
@@ -138,7 +143,6 @@ public class TrainingServiceImp implements TrainingService {
                 throw new EmployeeTrainingException(Message.TRAININGS_EXCEEDED);
             }
         }
-
 
     trainingEntity.addStudent(employeeEntity);
     }

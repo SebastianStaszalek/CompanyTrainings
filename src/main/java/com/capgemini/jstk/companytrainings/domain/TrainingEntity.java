@@ -17,14 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "TRAINING")
-public class TrainingEntity implements Serializable {
-
-    @Version
-    private Long version;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class TrainingEntity extends AbstractEntity implements Serializable {
 
     @Column(nullable = false, length = 30)
     private String title;
@@ -63,7 +56,7 @@ public class TrainingEntity implements Serializable {
 
     public void addCouch(EmployeeEntity newCouch) {
         this.couches.add(newCouch);
-        newCouch.updateTrainigAsCouchReference(this);
+        newCouch.updateTrainingAsCouchReference(this);
     }
 
     protected void updateCouchReference(EmployeeEntity employeeEntity) {
@@ -72,7 +65,7 @@ public class TrainingEntity implements Serializable {
 
     public void addStudent(EmployeeEntity newStudent) {
         this.students.add(newStudent);
-        newStudent.updateTrainigAsStudentReference(this);
+        newStudent.updateTrainingAsStudentReference(this);
     }
 
     protected void updateStudentReference(EmployeeEntity employeeEntity) {

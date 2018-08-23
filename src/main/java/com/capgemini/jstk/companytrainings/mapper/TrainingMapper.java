@@ -16,6 +16,7 @@ public class TrainingMapper {
         if(trainingEntity != null) {
             return TrainingTO.builder()
                     .id(trainingEntity.getId())
+                    .version(trainingEntity.getVersion())
                     .title(trainingEntity.getTitle())
                     .trainingType(trainingEntity.getTrainingType())
                     .duration(trainingEntity.getDuration())
@@ -36,7 +37,7 @@ public class TrainingMapper {
     public TrainingEntity map(TrainingTO trainingTO, TrainingEntity trainingEntity) {
         if(trainingTO != null) {
             trainingEntity.setId(trainingTO.getId());
-            trainingEntity.setVersion(trainingTO.getVersion());
+            //trainingEntity.setVersion(trainingTO.getVersion());
             trainingEntity.setTitle(trainingTO.getTitle());
             trainingEntity.setTrainingType(trainingTO.getTrainingType());
             trainingEntity.setDuration(trainingTO.getDuration());

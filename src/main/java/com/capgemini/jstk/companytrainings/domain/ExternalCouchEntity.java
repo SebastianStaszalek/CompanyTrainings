@@ -14,14 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "EXTERNAL_COUCH")
-public class ExternalCouchEntity implements Serializable {
-
-    @Version
-    private Long version;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ExternalCouchEntity extends AbstractEntity implements Serializable {
 
     @Column(nullable = false, length = 20)
     private String firstName;

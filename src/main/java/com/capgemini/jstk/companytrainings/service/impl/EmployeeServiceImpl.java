@@ -33,7 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeTO> getAllEmployees() {
         return employeeMapper.map2TO(employeeRepository.findAll());
     }
-//TODO: jak zrobic update w tym przypadku zeby nie stracic powiazan?
+
     @Override
     public EmployeeTO save(EmployeeTO employee) {
         Long superiorId = employee.getSuperiorId();

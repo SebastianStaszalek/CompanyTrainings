@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = "spring.profiles.active=hsql")
+@SpringBootTest(properties = "spring.profiles.active=mysql")
 public class TrainingServiceTest {
 
     @Autowired
@@ -61,6 +61,7 @@ public class TrainingServiceTest {
 
     @Test
     public void shouldUpdateTraining() {
+        //update
         TrainingTO training = testTO.createFirstTraining();
 
         TrainingTO savedTraining = trainingService.save(training);
