@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Repository
@@ -29,7 +29,7 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
     }
 
     @Override
-    public Double findSumOfTrainingHoursByCoachAndYear(Long id, Date date) {
+    public Double findSumOfTrainingHoursByCoachAndYear(Long id, int year) {
         JPAQuery<Double> query = new JPAQuery<>(em);
         QTrainingEntity training = QTrainingEntity.trainingEntity;
         QEmployeeEntity couches = QEmployeeEntity.employeeEntity;
@@ -38,23 +38,24 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
                 .select(training.duration.sum())
                 .join(training.couches, couches)
                 .where(couches.id.eq(id)
-                    .and(training.startDate.year().eq(date.getYear())))
+                    .and(training.startDate.year().eq(year)))
                 .fetchOne();
+
 
     }
 
-//    @Override
-//    public Double findSumWithJPQL(Long id, Date date) {
-//        TypedQuery<Double> query = em.createQuery(
-//             "select sum(tr.duration) from TrainingEntity tr inner join tr.couches c " +
-//                     "where c.id = :id and extract tr.startDate = year(:date)", Double.class
-//        );
-//
-//        query.setParameter("id", id);
-//        query.setParameter("date", date);
-//
-//        return query.getSingleResult();
-//    }
+    @Override
+    public Double findSumWithJPQL(Long id, Date date) {
+        TypedQuery<Double> query = em.createQuery(
+             "select sum(tr.duration) from TrainingEntity tr inner join tr.couches c " +
+                     "where c.id = :id and extract tr.startDate = year(:date)", Double.class
+        );
+
+        query.setParameter("id", id);
+        query.setParameter("date", date);
+
+        return query.getSingleResult();
+    }
 
 
 }

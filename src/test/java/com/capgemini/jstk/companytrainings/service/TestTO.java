@@ -8,7 +8,7 @@ import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Component
 public class TestTO {
@@ -28,8 +28,8 @@ public class TestTO {
                 .trainingType(TrainingType.SOFT)
                 .duration(2.5)
                 .trainingCharacter(TrainingCharacter.INTERNAL)
-                .startDate(Date.valueOf("2018-08-20"))
-                .endDate(Date.valueOf("2018-08-21"))
+                .startDate(LocalDate.of(2018, 8, 20))
+                .endDate(LocalDate.of(2018, 8, 21))
                 .costPerStudent(200)
                 .tags("presentation, negotiation")
                 .build();

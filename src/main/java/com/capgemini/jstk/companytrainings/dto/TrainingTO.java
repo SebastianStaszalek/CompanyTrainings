@@ -4,8 +4,9 @@ import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import lombok.*;
 
-import java.util.Date;
-import java.util.Set;
+import javax.persistence.Basic;
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -20,8 +21,8 @@ public class TrainingTO {
     private TrainingType trainingType;
     private Double duration;
     private TrainingCharacter trainingCharacter;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int costPerStudent;
     private String tags;
 

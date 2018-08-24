@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -369,9 +368,9 @@ public class TrainingServiceTest {
         training2.setDuration(2.5D);
         training3.setDuration(2.5D);
 
-        training1.setStartDate(Date.valueOf("2017-02-10"));
-        training2.setStartDate(Date.valueOf("2018-02-10"));
-        training3.setStartDate(Date.valueOf("2018-06-10"));
+        training1.setStartDate(LocalDate.of(2017, 4, 13));
+        training2.setStartDate(LocalDate.of(2018, 10, 13));
+        training3.setStartDate(LocalDate.of(2018, 2, 13));
 
         TrainingTO savedTraining1 = trainingService.save(training1);
         TrainingTO savedTraining2 = trainingService.save(training2);
@@ -382,7 +381,7 @@ public class TrainingServiceTest {
         trainingService.addCoachToTraining(savedTraining3, savedEmployee);
 
         //when
-        Double sum = trainingService.findSumOfTrainingHoursByCoachAndYear(savedEmployee.getId(), Date.valueOf("2018-10-05"));
+        Double sum = trainingService.findSumOfTrainingHoursByCoachAndYear(savedEmployee.getId(), 2018);
 
         //then
         assertThat(sum).isEqualTo(5D);

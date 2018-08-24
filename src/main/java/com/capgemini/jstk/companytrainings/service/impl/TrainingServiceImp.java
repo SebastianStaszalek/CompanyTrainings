@@ -18,14 +18,14 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 //TODO: jak testowac relacje skoro nie mapujemy wszystkich id?
 //TODO: usun sygnatury metod z repositories
-
+//TODO: dodaj status szkolenia
 @Service
 @Transactional
 public class TrainingServiceImp implements TrainingService {
@@ -175,7 +175,7 @@ public class TrainingServiceImp implements TrainingService {
     }
 
     @Override
-    public Double findSumOfTrainingHoursByCoachAndYear(Long id, Date date) {
-        return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, date);
+    public Double findSumOfTrainingHoursByCoachAndYear(Long id, int year) {
+        return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, year);
     }
 }
