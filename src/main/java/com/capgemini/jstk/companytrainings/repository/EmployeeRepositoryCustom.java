@@ -13,4 +13,5 @@ public interface EmployeeRepositoryCustom {
     Integer countCostOfStudentTrainings(Long studentId);
 
     List<EmployeeEntity> findStudentsWithMaxHoursSpentOnTrainings();
+
 }
