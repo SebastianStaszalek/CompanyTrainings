@@ -1,10 +1,10 @@
 package com.capgemini.jstk.companytrainings.dto;
 
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import lombok.*;
 
-import javax.persistence.Basic;
 import java.time.LocalDate;
 
 
@@ -24,6 +24,7 @@ public class TrainingTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private int costPerStudent;
+    private TrainingStatus status;
     private String tags;
 
 }

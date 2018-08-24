@@ -1,9 +1,6 @@
 package com.capgemini.jstk.companytrainings.service;
 
-import com.capgemini.jstk.companytrainings.domain.enums.EmployeePosition;
-import com.capgemini.jstk.companytrainings.domain.enums.Grade;
-import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
-import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
+import com.capgemini.jstk.companytrainings.domain.enums.*;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import org.springframework.stereotype.Component;
@@ -28,9 +25,10 @@ public class TestTO {
                 .trainingType(TrainingType.SOFT)
                 .duration(2.5)
                 .trainingCharacter(TrainingCharacter.INTERNAL)
-                .startDate(LocalDate.of(2018, 8, 20))
-                .endDate(LocalDate.of(2018, 8, 21))
+                .startDate(LocalDate.of(2018, 2, 20))
+                .endDate(LocalDate.of(2018, 2, 21))
                 .costPerStudent(200)
+                .status(TrainingStatus.PLANNED)
                 .tags("presentation, negotiation")
                 .build();
 

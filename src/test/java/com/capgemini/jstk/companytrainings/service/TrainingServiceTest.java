@@ -1,6 +1,7 @@
 package com.capgemini.jstk.companytrainings.service;
 
 import com.capgemini.jstk.companytrainings.domain.enums.Grade;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
@@ -380,6 +381,14 @@ public class TrainingServiceTest {
         trainingService.addCoachToTraining(savedTraining2, savedEmployee);
         trainingService.addCoachToTraining(savedTraining3, savedEmployee);
 
+        savedTraining1.setStatus(TrainingStatus.FINISHED);
+        savedTraining2.setStatus(TrainingStatus.FINISHED);
+        savedTraining3.setStatus(TrainingStatus.FINISHED);
+
+        trainingService.update(savedTraining1);
+        trainingService.update(savedTraining2);
+        trainingService.update(savedTraining3);
+
         //when
         Double sum = trainingService.findSumOfTrainingHoursByCoachAndYear(savedEmployee.getId(), 2018);
 
@@ -387,5 +396,6 @@ public class TrainingServiceTest {
         assertThat(sum).isEqualTo(5D);
     }
 
+//TODO: przetestuj status treningu
 
 }

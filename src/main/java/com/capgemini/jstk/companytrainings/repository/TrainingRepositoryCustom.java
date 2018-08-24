@@ -11,5 +11,6 @@ public interface TrainingRepositoryCustom {
 
     Double findSumOfTrainingHoursByCoachAndYear(Long id, int year);
 
+
     Double findSumWithJPQL(Long id,  Date date);
 }

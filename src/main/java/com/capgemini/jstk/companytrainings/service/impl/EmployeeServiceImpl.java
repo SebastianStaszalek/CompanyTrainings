@@ -1,15 +1,20 @@
 package com.capgemini.jstk.companytrainings.service.impl;
 
 import com.capgemini.jstk.companytrainings.domain.EmployeeEntity;
+import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
 import com.capgemini.jstk.companytrainings.repository.EmployeeRepository;
 import com.capgemini.jstk.companytrainings.service.EmployeeService;
+import com.capgemini.jstk.companytrainings.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
+
+//TODO: spytaj o ktore szkolenia pracownika chodzi
 
 @Service
 @Transactional
@@ -18,10 +23,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeMapper employeeMapper;
     private EmployeeRepository employeeRepository;
 
+    private TrainingService trainingService;
+
     @Autowired
-    public EmployeeServiceImpl(EmployeeMapper employeeMapper, EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeMapper employeeMapper, EmployeeRepository employeeRepository,
+                               TrainingService trainingService) {
         this.employeeMapper = employeeMapper;
         this.employeeRepository = employeeRepository;
+        this.trainingService = trainingService;
     }
 
     @Override
@@ -66,5 +75,27 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployee(EmployeeTO employee) {
         employeeRepository.delete(employee.getId());
+    }
+
+    @Override
+    public int countTrainingsForEmployeeInGivenTimePeriod(Long employeeId, LocalDate from, LocalDate to) {
+        List<TrainingEntity> trainingsList = employeeRepository.findAllTrainingsByStudentAndTimePeriod(employeeId, from, to);
+
+        if (trainingsList != null) {
+        return trainingsList.size();
+        }
+        return 0;
+    }
+
+    @Override
+    public Integer countTotalCostOfEmployeeTrainings(Long employeeId) {
+        return employeeRepository.countCostOfStudentTrainings(employeeId);
+    }
+
+    @Override
+    public List<EmployeeTO> findEmployeesWithMaxHoursSpentOnTrainings() {
+        List<EmployeeEntity> employeesList = employeeRepository.findStudentsWithMaxHoursSpentOnTrainings();
+
+        return employeeMapper.map2TO(employeesList);
     }
 }

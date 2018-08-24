@@ -24,6 +24,7 @@ public class TrainingMapper {
                     .startDate(trainingEntity.getStartDate())
                     .endDate(trainingEntity.getEndDate())
                     .costPerStudent(trainingEntity.getCostPerStudent())
+                    .status(trainingEntity.getStatus())
                     .tags(trainingEntity.getTags())
                     .build();
         }
@@ -45,6 +46,7 @@ public class TrainingMapper {
             trainingEntity.setStartDate(trainingTO.getStartDate());
             trainingEntity.setEndDate(trainingTO.getEndDate());
             trainingEntity.setCostPerStudent(trainingTO.getCostPerStudent());
+            trainingEntity.setStatus(trainingTO.getStatus());
             trainingEntity.setTags(trainingTO.getTags());
 
             return trainingEntity;

@@ -3,10 +3,12 @@ package com.capgemini.jstk.companytrainings.service.impl;
 import com.capgemini.jstk.companytrainings.domain.EmployeeEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.domain.enums.Grade;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
+import com.capgemini.jstk.companytrainings.exception.TrainingStatusException;
 import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
 import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
@@ -105,6 +107,14 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
+        if (trainingEntity.getStatus() == TrainingStatus.CANCELED) {
+            throw new TrainingStatusException(Message.TRAINING_CANCELED);
+        }
+
+        if(trainingEntity.getStatus() == TrainingStatus.FINISHED) {
+            throw new TrainingStatusException(Message.TRAINING_FINISHED);
+        }
+
         Set<EmployeeEntity> students = trainingEntity.getStudents();
         students.stream()
                 .filter(student -> student.getId().equals(employeeEntity.getId()))
@@ -152,6 +162,14 @@ public class TrainingServiceImp implements TrainingService {
     public void addCoachToTraining(TrainingTO training, EmployeeTO employee) {
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
+
+        if (trainingEntity.getStatus() == TrainingStatus.CANCELED) {
+            throw new TrainingStatusException(Message.TRAINING_CANCELED);
+        }
+
+        if(trainingEntity.getStatus() == TrainingStatus.FINISHED) {
+            throw new TrainingStatusException(Message.TRAINING_FINISHED);
+        }
 
         Set<EmployeeEntity> students = trainingEntity.getStudents();
         students.stream()

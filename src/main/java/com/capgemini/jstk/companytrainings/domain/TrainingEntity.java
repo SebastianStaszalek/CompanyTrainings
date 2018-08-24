@@ -1,6 +1,7 @@
 package com.capgemini.jstk.companytrainings.domain;
 
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import lombok.*;
 
@@ -44,6 +45,10 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
 
     @Column(length = 245)
     private String tags;
+
+    @Enumerated
+    @Column(nullable = false)
+    private TrainingStatus status = TrainingStatus.PLANNED;
 
     @ManyToMany(mappedBy = "trainingsAsCouch", fetch = FetchType.EAGER)
     private Set<EmployeeEntity> couches = new HashSet<>();

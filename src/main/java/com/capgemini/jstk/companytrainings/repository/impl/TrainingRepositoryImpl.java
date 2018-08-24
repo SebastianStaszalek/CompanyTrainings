@@ -3,6 +3,7 @@ package com.capgemini.jstk.companytrainings.repository.impl;
 import com.capgemini.jstk.companytrainings.domain.QEmployeeEntity;
 import com.capgemini.jstk.companytrainings.domain.QTrainingEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,8 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
                 .select(training.duration.sum())
                 .join(training.couches, couches)
                 .where(couches.id.eq(id)
-                    .and(training.startDate.year().eq(year)))
+                    .and(training.startDate.year().eq(year))
+                    .and(training.status.eq(TrainingStatus.FINISHED)))
                 .fetchOne();
 
 
