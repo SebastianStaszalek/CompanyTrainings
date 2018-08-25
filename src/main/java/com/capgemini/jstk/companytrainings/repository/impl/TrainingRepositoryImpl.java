@@ -15,6 +15,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.sql.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
@@ -85,10 +86,28 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
 
     @Override
     public List<TrainingEntity> findTrainingsWithLargestNumberOfEditions() {
-        JPAQuery<Double> query = new JPAQuery<>(em);
+        JPAQuery<Long> query = new JPAQuery<>(em);
+        JPAQuery<TrainingEntity> query2 = new JPAQuery<>(em);
         QTrainingEntity training = QTrainingEntity.trainingEntity;
 
-        return null;
+        List<Long> editionsCounter = query.select(training.title.count())
+                .from(training)
+                .where(training.status.eq(TrainingStatus.FINISHED))
+                .groupBy(training.title)
+                .fetch();
+
+        Long maxCounter = editionsCounter.stream()
+                .mapToLong(Long::longValue)
+                .max()
+                .orElseThrow(NoSuchElementException::new);
+
+        return query2.select(training)
+                .from(training)
+                .where(training.status.eq(TrainingStatus.FINISHED))
+                .groupBy(training.title)
+                //.having(training.title.count().eq(maxCounter))
+                .fetch();
+
     }
 
     @Override

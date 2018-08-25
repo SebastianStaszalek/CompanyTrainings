@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.domain.enums.Grade;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
@@ -195,5 +196,19 @@ public class TrainingServiceImp implements TrainingService {
     @Override
     public Double findSumOfTrainingHoursByCoachAndYear(Long id, int year) {
         return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, year);
+    }
+
+    @Override
+    public List<TrainingTO> findTrainingsByMultipleCriteria(TrainingCriteriaSearchTO criteria) {
+        List<TrainingEntity> trainings = trainingRepository.findTrainingsByMultipleCriteria(criteria);
+
+        return trainingMapper.map2TO(trainings);
+    }
+
+    @Override
+    public List<TrainingTO> findTrainingsWithLargestNumberOfEditions() {
+        List<TrainingEntity> trainings = trainingRepository.findTrainingsWithLargestNumberOfEditions();
+
+        return trainingMapper.map2TO(trainings);
     }
 }

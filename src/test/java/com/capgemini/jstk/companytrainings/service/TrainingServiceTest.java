@@ -1,9 +1,11 @@
 package com.capgemini.jstk.companytrainings.service;
 
 import com.capgemini.jstk.companytrainings.domain.enums.Grade;
+import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
@@ -397,5 +399,93 @@ public class TrainingServiceTest {
     }
 
 //TODO: przetestuj status treningu
+//TODO: nie znajduje dobrze daty!!
+    @Test
+    public void shouldFindTrainingsByMultipleCriteriaWithAllFieldsFilled() {
+        //given
+        TrainingTO training1 = testTO.createFirstTraining();
+        TrainingTO training2 = testTO.createFirstTraining();
+        TrainingTO training3 = testTO.createFirstTraining();
+
+        training1.setTitle("Spring boot 5");
+        training2.setTitle("Elastic search");
+        training3.setTitle("German level 1");
+
+        training1.setTrainingCharacter(TrainingCharacter.INTERNAL);
+        training2.setTrainingCharacter(TrainingCharacter.INTERNAL);
+        training3.setTrainingCharacter(TrainingCharacter.INTERNAL);
+
+        training1.setStartDate(LocalDate.of(2018, 4, 13));
+        training2.setStartDate(LocalDate.of(2018, 5, 13));
+        training3.setStartDate(LocalDate.of(2018, 6, 13));
+
+        training1.setEndDate(LocalDate.of(2018, 4, 16));
+        training2.setEndDate(LocalDate.of(2018, 5, 16));
+        training3.setEndDate(LocalDate.of(2018, 6, 16));
+
+        training1.setCostPerStudent(1000);
+        training2.setCostPerStudent(1000);
+        training3.setCostPerStudent(1000);
+
+        trainingService.save(training1);
+        trainingService.save(training2);
+        trainingService.save(training3);
+
+        TrainingCriteriaSearchTO criteria = TrainingCriteriaSearchTO.builder()
+                .title("Spring boot 5")
+                .trainingCharacter(TrainingCharacter.INTERNAL)
+                //.date(LocalDate.of(2018, 5, 14))
+                .costFrom(500)
+                .costTo(1200)
+                .build();
+
+        //when
+        List<TrainingTO> trainingsList = trainingService.findTrainingsByMultipleCriteria(criteria);
+        TrainingTO foundTraining = trainingsList.get(0);
+
+        //then
+        assertThat(trainingsList.size()).isEqualTo(1);
+        assertThat(foundTraining.getTitle()).isEqualToIgnoringCase(criteria.getTitle());
+    }
+
+    @Test
+    public void shouldFindTrainingsWithTheLargestNumberOfEditionAccordingToTitle() {
+        //given
+        TrainingTO training1 = testTO.createFirstTraining();
+        TrainingTO training2 = testTO.createFirstTraining();
+        TrainingTO training3 = testTO.createFirstTraining();
+        TrainingTO training4 = testTO.createFirstTraining();
+        TrainingTO training5 = testTO.createFirstTraining();
+
+        training1.setTitle("Spring boot 5");
+        training2.setTitle("Spring boot 5");
+        training3.setTitle("German level 1");
+        training4.setTitle("German level 1");
+        training5.setTitle("Building Android Apps");
+
+        TrainingTO savedTraining1 = trainingService.save(training1);
+        TrainingTO savedTraining2 = trainingService.save(training2);
+        TrainingTO savedTraining3 = trainingService.save(training3);
+        TrainingTO savedTraining4 = trainingService.save(training4);
+        TrainingTO savedTraining5 = trainingService.save(training5);
+
+        savedTraining1.setStatus(TrainingStatus.FINISHED);
+        savedTraining2.setStatus(TrainingStatus.FINISHED);
+        savedTraining3.setStatus(TrainingStatus.FINISHED);
+        savedTraining4.setStatus(TrainingStatus.FINISHED);
+        savedTraining5.setStatus(TrainingStatus.FINISHED);
+
+        trainingService.update(savedTraining1);
+        trainingService.update(savedTraining2);
+        trainingService.update(savedTraining3);
+        trainingService.update(savedTraining4);
+        trainingService.update(savedTraining5);
+
+        //when
+        List<TrainingTO> trainingsList = trainingService.findTrainingsWithLargestNumberOfEditions();
+
+        //then
+        assertThat(trainingsList.size()).isEqualTo(2);
+    }
 
 }

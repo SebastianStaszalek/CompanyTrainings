@@ -180,7 +180,7 @@ public class EmployeeServiceTest {
         //then
         assertThat(count).isEqualTo(8000);
     }
-
+//TODO: pomysl jak lepiej skonstruowac ten test
     @Test
     public void shouldFindEmployeesWithMaxHoursSpendOnAllFinishedTrainings() {
         //given
@@ -197,8 +197,8 @@ public class EmployeeServiceTest {
         TrainingTO training3 = testTO.createFirstTraining();
 
         training1.setDuration(5D);
-        training2.setDuration(2.5D);
-        training3.setDuration(2D);
+        training2.setDuration(3.5D);
+        training3.setDuration(3D);
 
         TrainingTO savedTraining1 = trainingService.save(training1);
         TrainingTO savedTraining2 = trainingService.save(training2);

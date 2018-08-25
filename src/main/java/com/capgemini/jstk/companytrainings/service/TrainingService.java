@@ -1,7 +1,9 @@
 package com.capgemini.jstk.companytrainings.service;
 
 
+import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
 import java.util.List;
@@ -30,4 +32,8 @@ public interface TrainingService {
     List<TrainingTO> findTrainingsByTag(String tag);
 
     Double findSumOfTrainingHoursByCoachAndYear(Long id, int year);
+
+    List<TrainingTO> findTrainingsByMultipleCriteria(TrainingCriteriaSearchTO criteria);
+
+    List<TrainingTO> findTrainingsWithLargestNumberOfEditions();
 }
