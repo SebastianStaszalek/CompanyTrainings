@@ -14,7 +14,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-//TODO: spytaj o ktore szkolenia pracownika chodzi
 
 @Service
 @Transactional

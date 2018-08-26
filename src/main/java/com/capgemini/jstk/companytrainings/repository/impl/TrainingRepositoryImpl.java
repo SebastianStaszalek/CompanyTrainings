@@ -12,10 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.sql.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Repository
 public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
@@ -30,24 +27,26 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
 
         BooleanBuilder condition = new BooleanBuilder();
 
-        if(searchCriteria.getTitle() != null) {
+        if (searchCriteria.getTitle() != null) {
             condition.and(training.title.equalsIgnoreCase(searchCriteria.getTitle()));
         }
 
-        if(searchCriteria.getTrainingCharacter() != null) {
+        if (searchCriteria.getTrainingCharacter() != null) {
             condition.and(training.trainingCharacter.eq(searchCriteria.getTrainingCharacter()));
         }
 
-        if(searchCriteria.getDate() != null) {
+        if (searchCriteria.getDate() != null) {
             condition.and(training.startDate.before(searchCriteria.getDate())
-                        .and(training.endDate.after(searchCriteria.getDate())));
+                    .and(training.endDate.after(searchCriteria.getDate())));
         }
 
-        if(searchCriteria.getCostFrom() != null && searchCriteria.getCostTo() != null) {
+        if (searchCriteria.getCostFrom() != null && searchCriteria.getCostTo() != null) {
             condition.and(training.costPerStudent
                     .between(searchCriteria.getCostFrom(), searchCriteria.getCostTo()));
-        } else if(searchCriteria.getCostFrom() != null && searchCriteria.getCostTo() == null) {
+
+        } else if (searchCriteria.getCostFrom() != null && searchCriteria.getCostTo() == null) {
             condition.and(training.costPerStudent.goe(searchCriteria.getCostFrom()));
+
         } else if (searchCriteria.getCostFrom() == null && searchCriteria.getCostTo() != null) {
             condition.and(training.costPerStudent.loe(searchCriteria.getCostTo()));
         }
@@ -73,12 +72,13 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
         QTrainingEntity training = QTrainingEntity.trainingEntity;
         QEmployeeEntity couches = QEmployeeEntity.employeeEntity;
 
-        return query.from(training)
+        return query
                 .select(training.duration.sum())
+                .from(training)
                 .join(training.couches, couches)
                 .where(couches.id.eq(id)
-                    .and(training.startDate.year().eq(year))
-                    .and(training.status.eq(TrainingStatus.FINISHED)))
+                        .and(training.startDate.year().eq(year))
+                        .and(training.status.eq(TrainingStatus.FINISHED)))
                 .fetchOne();
 
 
@@ -90,37 +90,24 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
         JPAQuery<TrainingEntity> query2 = new JPAQuery<>(em);
         QTrainingEntity training = QTrainingEntity.trainingEntity;
 
-        List<Long> editionsCounter = query.select(training.title.count())
+        Long maxCounter = query
+                .select(training.count())
                 .from(training)
                 .where(training.status.eq(TrainingStatus.FINISHED))
                 .groupBy(training.title)
-                .fetch();
+                .orderBy(training.count().desc())
+                .fetchFirst();
 
-        Long maxCounter = editionsCounter.stream()
-                .mapToLong(Long::longValue)
-                .max()
-                .orElseThrow(NoSuchElementException::new);
-
-        return query2.select(training)
+        return query2
+                .select(training)
                 .from(training)
                 .where(training.status.eq(TrainingStatus.FINISHED))
                 .groupBy(training.title)
-                //.having(training.title.count().eq(maxCounter))
+                .having(training.count().eq(maxCounter))
                 .fetch();
 
     }
-
-    @Override
-    public Double findSumWithJPQL(Long id, Date date) {
-        TypedQuery<Double> query = em.createQuery(
-             "select sum(tr.duration) from TrainingEntity tr inner join tr.couches c " +
-                     "where c.id = :id", Double.class
-        );
-
-        query.setParameter("id", id);
-
-        return query.getSingleResult();
-    }
-
 
 }
+
+

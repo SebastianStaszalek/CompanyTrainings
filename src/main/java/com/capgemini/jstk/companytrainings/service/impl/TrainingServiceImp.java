@@ -9,6 +9,7 @@ import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
+import com.capgemini.jstk.companytrainings.exception.IncorrectDatesException;
 import com.capgemini.jstk.companytrainings.exception.TrainingStatusException;
 import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
@@ -21,14 +22,12 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
-import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 //TODO: jak testowac relacje skoro nie mapujemy wszystkich id?
-//TODO: usun sygnatury metod z repositories
-//TODO: dodaj status szkolenia
+//TODO: pomysl czy zawsze sprawdzasz status szkolenia
 @Service
 @Transactional
 public class TrainingServiceImp implements TrainingService {
@@ -38,11 +37,11 @@ public class TrainingServiceImp implements TrainingService {
     private static final int BUDGET_FOR_STUDENT_WITH_HIGHER_GRADE = 50000;
 
 
-    EmployeeRepository employeeRepository;
-    EmployeeMapper employeeMapper;
+    private EmployeeRepository employeeRepository;
+    private EmployeeMapper employeeMapper;
 
-    TrainingMapper trainingMapper;
-    TrainingRepository trainingRepository;
+    private TrainingMapper trainingMapper;
+    private TrainingRepository trainingRepository;
 
 
     @Autowired
@@ -66,6 +65,8 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO save(TrainingTO training) {
+        validateDates(training);
+
         TrainingEntity trainingEntity = trainingMapper.map(training);
 
         return trainingMapper.map(trainingRepository.save(trainingEntity));
@@ -73,7 +74,11 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO update(TrainingTO training) {
+        validateDates(training);
+
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+
+        checkIfTrainingIsNotCancelled(trainingEntity);
 
         if(!training.getVersion().equals(trainingEntity.getVersion())) {
             throw new OptimisticLockException();
@@ -102,32 +107,18 @@ public class TrainingServiceImp implements TrainingService {
         return employeeMapper.map2TOSet(trainingEntity.getCouches());
     }
 
-    //TODO: podmienic na nowszy typ daty!?
     @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
-        if (trainingEntity.getStatus() == TrainingStatus.CANCELED) {
-            throw new TrainingStatusException(Message.TRAINING_CANCELED);
-        }
+        checkIfTrainingIsNotFinished(trainingEntity);
 
-        if(trainingEntity.getStatus() == TrainingStatus.FINISHED) {
-            throw new TrainingStatusException(Message.TRAINING_FINISHED);
-        }
+        checkIfTrainingIsNotCancelled(trainingEntity);
 
-        Set<EmployeeEntity> students = trainingEntity.getStudents();
-        students.stream()
-                .filter(student -> student.getId().equals(employeeEntity.getId()))
-                .findAny()
-                .ifPresent(student -> {throw new EmployeeTrainingException(Message.STUDENT_ALREADY_EXISTS);});
+        checkIfEmployeeAddedBeforeAsStudent(trainingEntity, employeeEntity, Message.STUDENT_ALREADY_EXISTS);
 
-        Set<EmployeeEntity> coaches = trainingEntity.getCouches();
-        boolean exists = coaches.stream()
-                .anyMatch(coach -> coach.getId().equals(employeeEntity.getId()));
-        if(exists) {
-            throw new EmployeeTrainingException(Message.STUDENT_ALREADY_ADDED_AS_COUCH);
-        }
+        checkIfEmployeeAddedBeforeAsCouch(trainingEntity, employeeEntity, Message.STUDENT_ALREADY_ADDED_AS_COUCH);
 
         Set<TrainingEntity> employeeTrainings = employeeEntity.getTrainingsAsStudent();
         List<TrainingEntity> trainingsInTheYear = employeeTrainings.stream()
@@ -164,25 +155,13 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
-        if (trainingEntity.getStatus() == TrainingStatus.CANCELED) {
-            throw new TrainingStatusException(Message.TRAINING_CANCELED);
-        }
+        checkIfTrainingIsNotCancelled(trainingEntity);
 
-        if(trainingEntity.getStatus() == TrainingStatus.FINISHED) {
-            throw new TrainingStatusException(Message.TRAINING_FINISHED);
-        }
+        checkIfTrainingIsNotFinished(trainingEntity);
 
-        Set<EmployeeEntity> students = trainingEntity.getStudents();
-        students.stream()
-                .filter(student -> student.getId().equals(employeeEntity.getId()))
-                .findAny()
-                .ifPresent(student -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_ADDED_AS_STUDENT);});
+        checkIfEmployeeAddedBeforeAsStudent(trainingEntity, employeeEntity, Message.COUCH_ALREADY_ADDED_AS_STUDENT);
 
-        Set<EmployeeEntity> coaches = trainingEntity.getCouches();
-        coaches.stream()
-                .filter(coach -> coach.getId().equals(employeeEntity.getId()))
-                .findAny()
-                .ifPresent(student -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_EXISTS);});
+        checkIfEmployeeAddedBeforeAsCouch(trainingEntity, employeeEntity, Message.COUCH_ALREADY_EXISTS);
 
         trainingEntity.addCouch(employeeEntity);
     }
@@ -210,5 +189,40 @@ public class TrainingServiceImp implements TrainingService {
         List<TrainingEntity> trainings = trainingRepository.findTrainingsWithLargestNumberOfEditions();
 
         return trainingMapper.map2TO(trainings);
+    }
+
+
+    private void checkIfEmployeeAddedBeforeAsStudent(TrainingEntity training, EmployeeEntity employee, String message) {
+        Set<EmployeeEntity> students = training.getStudents();
+        students.stream()
+                .filter(student -> student.getId().equals(employee.getId()))
+                .findAny()
+                .ifPresent(student -> {throw new EmployeeTrainingException(message);});
+    }
+
+    private void checkIfEmployeeAddedBeforeAsCouch(TrainingEntity training, EmployeeEntity employee, String message) {
+        Set<EmployeeEntity> coaches = training.getCouches();
+        coaches.stream()
+                .filter(coach -> coach.getId().equals(employee.getId()))
+                .findAny()
+                .ifPresent(coach -> {throw new EmployeeTrainingException(message);});
+    }
+
+    private void checkIfTrainingIsNotFinished(TrainingEntity training) {
+        if (training.getStatus() == TrainingStatus.CANCELED) {
+            throw new TrainingStatusException(Message.TRAINING_CANCELED);
+        }
+    }
+
+    private void checkIfTrainingIsNotCancelled(TrainingEntity training) {
+        if(training.getStatus() == TrainingStatus.FINISHED) {
+            throw new TrainingStatusException(Message.TRAINING_FINISHED);
+        }
+    }
+
+    private void validateDates(TrainingTO training) {
+        if(training.getEndDate().isBefore(training.getStartDate())) {
+            throw new IncorrectDatesException(Message.INCORRECT_DATES);
+        }
     }
 }
