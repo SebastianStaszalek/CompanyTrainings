@@ -72,6 +72,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public void addSuperiorToEmployee(EmployeeTO employee, EmployeeTO superior) {
+        EmployeeEntity subordinate = employeeRepository.findOne(employee.getId());
+        EmployeeEntity boss = employeeRepository.findOne(superior.getId());
+
+        subordinate.setSuperior(boss);
+    }
+
+    @Override
     public void deleteEmployee(EmployeeTO employee) {
         employeeRepository.delete(employee.getId());
     }

@@ -357,6 +357,7 @@ public class TrainingServiceTest {
         assertThat(trainingsList.size()).isEqualTo(2);
     }
 
+    //TODO: jesli w testach ustawiasz start date to musisz tez and date!
     @Test
     public void shouldFindSumOfTrainingsHoursByCouchAndYear() {
         //given
@@ -374,6 +375,10 @@ public class TrainingServiceTest {
         training1.setStartDate(LocalDate.of(2017, 4, 13));
         training2.setStartDate(LocalDate.of(2018, 10, 13));
         training3.setStartDate(LocalDate.of(2018, 2, 13));
+
+        training1.setEndDate(LocalDate.of(2017, 4, 20));
+        training2.setEndDate(LocalDate.of(2018, 10, 20));
+        training3.setEndDate(LocalDate.of(2018, 2, 20));
 
         TrainingTO savedTraining1 = trainingService.save(training1);
         TrainingTO savedTraining2 = trainingService.save(training2);
@@ -399,7 +404,7 @@ public class TrainingServiceTest {
     }
 
 //TODO: przetestuj status treningu
-//TODO: nie znajduje dobrze daty!!
+
     @Test
     public void shouldFindTrainingsByMultipleCriteriaWithAllFieldsFilled() {
         //given
@@ -434,7 +439,7 @@ public class TrainingServiceTest {
         TrainingCriteriaSearchTO criteria = TrainingCriteriaSearchTO.builder()
                 .title("Spring boot 5")
                 .trainingCharacter(TrainingCharacter.INTERNAL)
-                //.date(LocalDate.of(2018, 5, 14))
+                .date(LocalDate.of(2018, 4, 14))
                 .costFrom(500)
                 .costTo(1200)
                 .build();

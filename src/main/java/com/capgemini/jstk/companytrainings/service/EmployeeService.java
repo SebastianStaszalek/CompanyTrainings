@@ -15,6 +15,8 @@ public interface EmployeeService {
 
     EmployeeTO update(EmployeeTO employee);
 
+    void addSuperiorToEmployee(EmployeeTO employee, EmployeeTO superior);
+
     void deleteEmployee(EmployeeTO employee);
 
     int countTrainingsForEmployeeInGivenTimePeriod(Long employeeId, LocalDate from, LocalDate to);

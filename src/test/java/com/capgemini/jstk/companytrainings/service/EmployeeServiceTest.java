@@ -112,6 +112,26 @@ public class EmployeeServiceTest {
 
     }
 
+    //TODO: pomysl jak sprawdzic przelozonego pracownika!
+    @Test
+    public void shouldAddSuperiorToEmployee() {
+        //given
+        EmployeeTO employee = testTO.createFirstEmployee();
+        EmployeeTO superior = testTO.createFirstEmployee();
+
+        EmployeeTO savedEmployee = employeeService.save(employee);
+        EmployeeTO savedSuperior = employeeService.save(superior);
+
+
+        //when
+        employeeService.addSuperiorToEmployee(savedEmployee, savedSuperior);
+
+        EmployeeTO employeeToCheck = employeeService.findEmployeeById(savedEmployee.getId());
+
+        //then
+        assertThat(employeeToCheck.getSuperiorId()).isEqualTo(savedSuperior.getId());
+    }
+
     @Test
     public void shouldFindCountOfTrainingsParticipatedByGivenStudentAndPeriodOfTime() {
         //given
