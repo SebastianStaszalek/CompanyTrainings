@@ -7,6 +7,7 @@ import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepositoryCustom;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Repository;
 
@@ -88,6 +89,7 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
     public List<TrainingEntity> findTrainingsWithLargestNumberOfEditions() {
         JPAQuery<Long> query = new JPAQuery<>(em);
         JPAQuery<TrainingEntity> query2 = new JPAQuery<>(em);
+        JPAQuery<TrainingEntity> query3 = new JPAQuery<>(em);
         QTrainingEntity training = QTrainingEntity.trainingEntity;
 
         Long maxCounter = query
@@ -98,12 +100,19 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
                 .orderBy(training.count().desc())
                 .fetchFirst();
 
-        return query2
-                .select(training)
+        List<String> titles = query2
+                .select(training.title)
                 .from(training)
                 .where(training.status.eq(TrainingStatus.FINISHED))
                 .groupBy(training.title)
                 .having(training.count().eq(maxCounter))
+                .fetch();
+
+        return query3
+                .select(training)
+                .from(training)
+                .where(training.status.eq(TrainingStatus.FINISHED)
+                    .and(training.title.in(titles)))
                 .fetch();
 
     }

@@ -490,7 +490,7 @@ public class TrainingServiceTest {
         List<TrainingTO> trainingsList = trainingService.findTrainingsWithLargestNumberOfEditions();
 
         //then
-        assertThat(trainingsList.size()).isEqualTo(2);
+        assertThat(trainingsList.size()).isEqualTo(4);
     }
 
 }
