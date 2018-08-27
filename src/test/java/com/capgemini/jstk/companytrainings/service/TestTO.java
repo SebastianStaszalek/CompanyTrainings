@@ -2,6 +2,7 @@ package com.capgemini.jstk.companytrainings.service;
 
 import com.capgemini.jstk.companytrainings.domain.enums.*;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,15 @@ public class TestTO {
                 .status(TrainingStatus.PLANNED)
                 .tags("presentation, negotiation")
                 .build();
-
     }
+
+    public ExternalCouchTO createFirstExternalCouch() {
+        return ExternalCouchTO.builder()
+                .firstName("Radoslaw")
+                .lastName("Budzyn")
+                .companyName("Train Hard")
+                .build();
+    }
+
+
 }

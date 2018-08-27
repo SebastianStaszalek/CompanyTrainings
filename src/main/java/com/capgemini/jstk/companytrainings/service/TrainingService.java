@@ -1,8 +1,8 @@
 package com.capgemini.jstk.companytrainings.service;
 
 
-import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
@@ -28,6 +28,8 @@ public interface TrainingService {
     void addStudentToTraining(TrainingTO training, EmployeeTO employee);
 
     void addCoachToTraining(TrainingTO training, EmployeeTO employee);
+
+    void addExternalCouchToTraining(TrainingTO training, ExternalCouchTO externalCouch);
 
     List<TrainingTO> findTrainingsByTag(String tag);
 

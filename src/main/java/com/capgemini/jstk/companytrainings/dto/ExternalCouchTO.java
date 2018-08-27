@@ -11,7 +11,8 @@ import lombok.*;
 public class ExternalCouchTO {
 
     private Long id;
+    private Long version;
     private String firstName;
-    private String secondName;
+    private String lastName;
     private String companyName;
 }

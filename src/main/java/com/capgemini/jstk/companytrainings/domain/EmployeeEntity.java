@@ -12,7 +12,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "EMPLOYEE")
@@ -49,18 +48,9 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     )
     private Set<TrainingEntity> trainingsAsStudent = new HashSet<>();
 
-    public void addTrainingAsCouch(TrainingEntity newTraining) {
-        this.trainingsAsCouch.add(newTraining);
-        newTraining.updateCouchReference(this);
-    }
 
     protected void updateTrainingAsCouchReference(TrainingEntity trainingEntity) {
         this.trainingsAsCouch.add(trainingEntity);
-    }
-
-    public void addTrainingAsStudent(TrainingEntity newTraining) {
-        this.trainingsAsStudent.add(newTraining);
-        newTraining.updateStudentReference(this);
     }
 
     protected void updateTrainingAsStudentReference(TrainingEntity trainingEntity) {

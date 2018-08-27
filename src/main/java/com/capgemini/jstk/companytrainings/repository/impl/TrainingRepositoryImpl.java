@@ -7,7 +7,6 @@ import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepositoryCustom;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Repository;
 

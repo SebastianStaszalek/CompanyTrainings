@@ -10,7 +10,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "EXTERNAL_COUCH")
@@ -20,7 +19,7 @@ public class ExternalCouchEntity extends AbstractEntity implements Serializable 
     private String firstName;
 
     @Column(nullable = false, length = 20)
-    private String secondName;
+    private String lastName;
 
     @Column(nullable = false, length = 30)
     private String companyName;
@@ -33,5 +32,8 @@ public class ExternalCouchEntity extends AbstractEntity implements Serializable 
     Set<TrainingEntity> trainings = new HashSet<>();
 
 
+    protected void updateTrainingAsExternalCouchReference(TrainingEntity trainingEntity) {
+        this.trainings.add(trainingEntity);
+    }
 
 }

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -359,6 +360,7 @@ public class TrainingServiceTest {
 
     //TODO: jesli w testach ustawiasz start date to musisz tez and date!
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindSumOfTrainingsHoursByCouchAndYear() {
         //given
         EmployeeTO employee = testTO.createFirstEmployee();
@@ -405,7 +407,8 @@ public class TrainingServiceTest {
 
 //TODO: przetestuj status treningu
 
-    @Test
+    @Test()
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindTrainingsByMultipleCriteriaWithAllFieldsFilled() {
         //given
         TrainingTO training1 = testTO.createFirstTraining();
@@ -454,6 +457,7 @@ public class TrainingServiceTest {
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindTrainingsWithTheLargestNumberOfEditionAccordingToTitle() {
         //given
         TrainingTO training1 = testTO.createFirstTraining();

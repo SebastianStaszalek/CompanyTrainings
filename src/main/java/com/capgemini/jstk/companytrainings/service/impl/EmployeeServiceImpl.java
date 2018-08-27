@@ -10,6 +10,7 @@ import com.capgemini.jstk.companytrainings.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +23,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeMapper employeeMapper;
     private EmployeeRepository employeeRepository;
 
+    //TODO: czy to jest potrzebne?
     private TrainingService trainingService;
 
     @Autowired
@@ -59,7 +61,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeTO update(EmployeeTO employee) {
         Long superiorId = employee.getSuperiorId();
+
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
+
+        if(!employee.getVersion().equals(employeeEntity.getVersion())) {
+            throw new OptimisticLockException();
+        }
+
         if (superiorId != null) {
             EmployeeEntity superior = employeeRepository.findOne(superiorId);
             employeeEntity.setSuperior(superior);
@@ -67,8 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         EmployeeEntity employeeToUpdate = employeeMapper.map(employee, employeeEntity);
 
-        return employeeMapper.map(employeeRepository.save(employeeToUpdate));
-
+        return employeeMapper.map(employeeToUpdate);
     }
 
     @Override

@@ -14,7 +14,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "TRAINING")
@@ -64,18 +63,27 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
         newCouch.updateTrainingAsCouchReference(this);
     }
 
-    protected void updateCouchReference(EmployeeEntity employeeEntity) {
-        this.couches.add(employeeEntity);
-    }
+//    protected void updateCouchReference(EmployeeEntity employeeEntity) {
+//        this.couches.add(employeeEntity);
+//    }
 
     public void addStudent(EmployeeEntity newStudent) {
         this.students.add(newStudent);
         newStudent.updateTrainingAsStudentReference(this);
     }
 
-    protected void updateStudentReference(EmployeeEntity employeeEntity) {
-        this.students.add(employeeEntity);
+//    protected void updateStudentReference(EmployeeEntity employeeEntity) {
+//        this.students.add(employeeEntity);
+//    }
+
+    public void addExternalCouch(ExternalCouchEntity newCouch) {
+        this.externalCouches.add(newCouch);
+        newCouch.updateTrainingAsExternalCouchReference(this);
     }
+
+//    protected void updateCouchReference(ExternalCouchEntity externalCouchEntity) {
+//        this.externalCouches.add(externalCouchEntity);
+//    }
 
 
 }

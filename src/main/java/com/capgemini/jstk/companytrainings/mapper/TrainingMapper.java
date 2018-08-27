@@ -14,19 +14,21 @@ public class TrainingMapper {
 
     public TrainingTO map(TrainingEntity trainingEntity) {
         if(trainingEntity != null) {
-            return TrainingTO.builder()
-                    .id(trainingEntity.getId())
-                    .version(trainingEntity.getVersion())
-                    .title(trainingEntity.getTitle())
-                    .trainingType(trainingEntity.getTrainingType())
-                    .duration(trainingEntity.getDuration())
-                    .trainingCharacter(trainingEntity.getTrainingCharacter())
-                    .startDate(trainingEntity.getStartDate())
-                    .endDate(trainingEntity.getEndDate())
-                    .costPerStudent(trainingEntity.getCostPerStudent())
-                    .status(trainingEntity.getStatus())
-                    .tags(trainingEntity.getTags())
-                    .build();
+            TrainingTO trainingTO = new TrainingTO();
+
+            trainingTO.setId(trainingEntity.getId());
+            trainingTO.setVersion(trainingEntity.getVersion());
+            trainingTO.setTitle(trainingEntity.getTitle());
+            trainingTO.setTrainingType(trainingEntity.getTrainingType());
+            trainingTO.setDuration(trainingEntity.getDuration());
+            trainingTO.setTrainingCharacter(trainingEntity.getTrainingCharacter());
+            trainingTO.setStartDate(trainingEntity.getStartDate());
+            trainingTO.setEndDate(trainingEntity.getEndDate());
+            trainingTO.setCostPerStudent(trainingEntity.getCostPerStudent());
+            trainingTO.setStatus(trainingEntity.getStatus());
+            trainingTO.setTags(trainingEntity.getTags());
+
+            return trainingTO;
         }
         return null;
     }
@@ -38,7 +40,6 @@ public class TrainingMapper {
     public TrainingEntity map(TrainingTO trainingTO, TrainingEntity trainingEntity) {
         if(trainingTO != null) {
             trainingEntity.setId(trainingTO.getId());
-            //trainingEntity.setVersion(trainingTO.getVersion());
             trainingEntity.setTitle(trainingTO.getTitle());
             trainingEntity.setTrainingType(trainingTO.getTrainingType());
             trainingEntity.setDuration(trainingTO.getDuration());

@@ -10,20 +10,29 @@ import java.util.stream.Collectors;
 
 @Component
 public class EmployeeMapper {
+
     public EmployeeTO map(EmployeeEntity employeeEntity) {
         if(employeeEntity != null) {
-            return EmployeeTO.builder()
-                    .id(employeeEntity.getId())
-                    .version(employeeEntity.getVersion())
-                    .firstName(employeeEntity.getFirstName())
-                    .lastName(employeeEntity.getLastName())
-                    .employeePosition(employeeEntity.getEmployeePosition())
-                    .grade(employeeEntity.getGrade())
-                    .build();
+            EmployeeTO employeeTO = new EmployeeTO();
+
+            employeeTO.setId(employeeEntity.getId());
+            employeeTO.setVersion(employeeEntity.getVersion());
+            employeeTO.setFirstName(employeeEntity.getFirstName());
+            employeeTO.setLastName(employeeEntity.getLastName());
+            employeeTO.setEmployeePosition(employeeEntity.getEmployeePosition());
+
+            if (employeeEntity.getGrade() != null){
+                employeeTO.setGrade(employeeEntity.getGrade());
+            }
+            if (employeeEntity.getSuperior() != null) {
+                employeeTO.setSuperiorId(employeeEntity.getSuperior().getId());
+            }
+
+            return employeeTO;
         }
         return null;
     }
-
+    //TODO: czy mapowac wersje w ta strone?!
     public EmployeeEntity map(EmployeeTO employeeTO) {
         return map(employeeTO, new EmployeeEntity());
     }
@@ -31,7 +40,7 @@ public class EmployeeMapper {
     public EmployeeEntity map(EmployeeTO employeeTO, EmployeeEntity employeeEntity) {
         if(employeeTO != null) {
             employeeEntity.setId(employeeTO.getId());
-            employeeEntity.setVersion(employeeTO.getVersion());
+            //employeeEntity.setVersion(employeeTO.getVersion());
             employeeEntity.setFirstName(employeeTO.getFirstName());
             employeeEntity.setLastName(employeeTO.getLastName());
             employeeEntity.setEmployeePosition(employeeTO.getEmployeePosition());

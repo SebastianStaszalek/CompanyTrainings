@@ -1,10 +1,12 @@
 package com.capgemini.jstk.companytrainings.service.impl;
 
 import com.capgemini.jstk.companytrainings.domain.EmployeeEntity;
+import com.capgemini.jstk.companytrainings.domain.ExternalCouchEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.domain.enums.Grade;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
@@ -15,6 +17,7 @@ import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
 import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.EmployeeRepository;
+import com.capgemini.jstk.companytrainings.repository.ExternalCouchRepository;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepository;
 import com.capgemini.jstk.companytrainings.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +46,17 @@ public class TrainingServiceImp implements TrainingService {
     private TrainingMapper trainingMapper;
     private TrainingRepository trainingRepository;
 
+    private ExternalCouchRepository couchRepository;
 
     @Autowired
     public TrainingServiceImp(EmployeeRepository employeeRepository, TrainingMapper trainingMapper,
-                              TrainingRepository trainingRepository, EmployeeMapper employeeMapper) {
+                              TrainingRepository trainingRepository, EmployeeMapper employeeMapper,
+                              ExternalCouchRepository couchRepository) {
         this.employeeRepository = employeeRepository;
         this.trainingMapper = trainingMapper;
         this.trainingRepository = trainingRepository;
         this.employeeMapper = employeeMapper;
+        this.couchRepository = couchRepository;
     }
 
     @Override
@@ -164,6 +170,24 @@ public class TrainingServiceImp implements TrainingService {
         checkIfEmployeeAddedBeforeAsCouch(trainingEntity, employeeEntity, Message.COUCH_ALREADY_EXISTS);
 
         trainingEntity.addCouch(employeeEntity);
+    }
+
+    @Override
+    public void addExternalCouchToTraining(TrainingTO training, ExternalCouchTO externalCouch) {
+        TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+        ExternalCouchEntity couchEntity = couchRepository.findOne(externalCouch.getId());
+
+        checkIfTrainingIsNotCancelled(trainingEntity);
+
+        checkIfTrainingIsNotFinished(trainingEntity);
+
+        Set<ExternalCouchEntity> coaches = trainingEntity.getExternalCouches();
+        coaches.stream()
+                .filter(coach -> coach.getId().equals(couchEntity.getId()))
+                .findAny()
+                .ifPresent(coach -> {throw new EmployeeTrainingException(Message.COUCH_ALREADY_EXISTS);});
+
+        trainingEntity.addExternalCouch(couchEntity);
     }
 
     @Override
