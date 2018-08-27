@@ -5,6 +5,8 @@ import com.capgemini.jstk.companytrainings.domain.enums.Grade;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
+import com.capgemini.jstk.companytrainings.exception.EmployeeNotFoundException;
+import com.capgemini.jstk.companytrainings.exception.ResultNotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -283,5 +285,41 @@ public class EmployeeServiceTest {
 
         //then
         assertThat(employeesList.size()).isEqualTo(2);
+    }
+
+    @Test(expected = EmployeeNotFoundException.class)
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+    public void shouldThrowEmployeeNotFoundExceptionWhenTryToUpdateNotExistingEmployee(){
+        //given
+        EmployeeTO employee = testTO.createFirstEmployee();
+
+        EmployeeTO savedEmployee = employeeService.save(employee);
+
+        EmployeeTO employeeToUpdate = testTO.createFirstEmployee();
+        employeeToUpdate.setId(savedEmployee.getId()+1L);
+        employeeToUpdate.setGrade(Grade.THIRD);
+
+        //when
+        employeeService.update(employeeToUpdate);
+    }
+
+    @Test(expected = ResultNotFoundException.class)
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+    public void shouldThrowExceptionWhenNoResultIsFound() {
+        //given
+        EmployeeTO employee1 = testTO.createFirstEmployee();
+
+        EmployeeTO savedEmployee1 = employeeService.save(employee1);
+
+        TrainingTO training1 = testTO.createFirstTraining();
+
+        TrainingTO savedTraining1 = trainingService.save(training1);
+        savedTraining1.setStatus(TrainingStatus.FINISHED);
+
+        trainingService.update(savedTraining1);
+
+        //when
+        employeeService.countTotalCostOfEmployeeTrainings(savedEmployee1.getId());
+
     }
 }

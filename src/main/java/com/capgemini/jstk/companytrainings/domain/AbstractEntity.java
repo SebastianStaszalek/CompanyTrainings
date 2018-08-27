@@ -25,13 +25,13 @@ public abstract class AbstractEntity {
     private Long id;
 
     @Version
-    protected Long version;
+    private Long version;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date creationDate;
+    private Date creationDate;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date lastModifiedDate;
+    private Date lastModifiedDate;
 }

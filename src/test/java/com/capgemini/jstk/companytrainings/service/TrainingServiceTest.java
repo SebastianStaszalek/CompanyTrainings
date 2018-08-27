@@ -10,6 +10,7 @@ import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
 import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
+import com.capgemini.jstk.companytrainings.exception.TrainingStatusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -472,8 +473,6 @@ public class TrainingServiceTest {
         assertThat(sum).isEqualTo(5D);
     }
 
-//TODO: przetestuj status treningu
-
     @Test()
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindTrainingsByMultipleCriteriaWithAllParametersFilled() {
@@ -589,6 +588,23 @@ public class TrainingServiceTest {
 
         //then
         assertThat(trainingsList.size()).isEqualTo(4);
+    }
+
+    @Test(expected = TrainingStatusException.class)
+    public void shouldThrowStatusExceptionWhenTryToAddStudentToCancelledTraining() {
+        //given
+        TrainingTO training = testTO.createFirstTraining();
+        TrainingTO savedTraining = trainingService.save(training);
+
+        EmployeeTO employee = testTO.createFirstEmployee();
+        EmployeeTO savedEmployee = employeeService.save(employee);
+
+        savedTraining.setStatus(TrainingStatus.FINISHED);
+        trainingService.update(savedTraining);
+
+        //when
+        trainingService.addStudentToTraining(savedTraining, savedEmployee);
+
     }
 
 }
