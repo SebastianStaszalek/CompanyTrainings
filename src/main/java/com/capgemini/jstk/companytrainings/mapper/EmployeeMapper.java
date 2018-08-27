@@ -32,7 +32,7 @@ public class EmployeeMapper {
         }
         return null;
     }
-    //TODO: czy mapowac wersje w ta strone?!
+
     public EmployeeEntity map(EmployeeTO employeeTO) {
         return map(employeeTO, new EmployeeEntity());
     }
@@ -40,7 +40,6 @@ public class EmployeeMapper {
     public EmployeeEntity map(EmployeeTO employeeTO, EmployeeEntity employeeEntity) {
         if(employeeTO != null) {
             employeeEntity.setId(employeeTO.getId());
-            //employeeEntity.setVersion(employeeTO.getVersion());
             employeeEntity.setFirstName(employeeTO.getFirstName());
             employeeEntity.setLastName(employeeTO.getLastName());
             employeeEntity.setEmployeePosition(employeeTO.getEmployeePosition());

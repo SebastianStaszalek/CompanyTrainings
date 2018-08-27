@@ -85,6 +85,11 @@ public class TrainingServiceImp implements TrainingService {
         validateDates(training);
 
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
+        }
+
         checkIfTrainingIsNotCancelled(trainingEntity);
 
         if(!training.getVersion().equals(trainingEntity.getVersion())) {
@@ -102,7 +107,7 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         trainingEntity.removeStudentsReferences();
@@ -118,7 +123,7 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(id);
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         return employeeMapper.map2TOSet(trainingEntity.getStudents());
@@ -130,7 +135,7 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(id);
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         return employeeMapper.map2TOSet(trainingEntity.getCouches());
@@ -142,7 +147,7 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingEntity = trainingRepository.findOne(id);
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         return couchMapper.map2TOSet(trainingEntity.getExternalCouches());
@@ -157,11 +162,11 @@ public class TrainingServiceImp implements TrainingService {
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         if(employeeEntity == null) {
-            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_FOUND);
+            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_IN_DB);
         }
 
         checkIfTrainingIsNotFinished(trainingEntity);
@@ -211,11 +216,11 @@ public class TrainingServiceImp implements TrainingService {
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         if(employeeEntity == null) {
-            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_FOUND);
+            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_IN_DB);
         }
 
         checkIfTrainingIsNotCancelled(trainingEntity);
@@ -238,11 +243,11 @@ public class TrainingServiceImp implements TrainingService {
         ExternalCouchEntity couchEntity = couchRepository.findOne(externalCouch.getId());
 
         if(trainingEntity == null) {
-            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_IN_DB);
         }
 
         if(couchEntity == null) {
-            throw new ExternalCouchNotFoundException(Message.EXTERNAL_COUCH__NOT_FOUND);
+            throw new ExternalCouchNotFoundException(Message.EXTERNAL_COUCH_NOT_IN_DB);
         }
 
         checkIfTrainingIsNotCancelled(trainingEntity);
@@ -263,13 +268,23 @@ public class TrainingServiceImp implements TrainingService {
         Preconditions.checkNotNull(tag, Message.EMPTY_FIELD);
 
         List<TrainingEntity> trainings = trainingRepository.findTrainingsByTagsQueryDSL(tag);
+
+        if(trainings.isEmpty()) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
         return trainingMapper.map2TO(trainings);
     }
 
     @Override
     public Double findSumOfTrainingHoursByCoachAndYear(Long id, int year) {
         Preconditions.checkNotNull(id, Message.EMPTY_ID);
-        Preconditions.checkArgument(year == 0 , Message.EMPTY_FIELD);
+        Preconditions.checkArgument(year > 0 , Message.WRONG_VALUE);
+
+        Double result = trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, year);
+
+        if(result == null) {
+            throw new ResultNotFoundException(Message.NO_RESULT);
+        }
 
         return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, year);
     }
@@ -280,12 +295,20 @@ public class TrainingServiceImp implements TrainingService {
 
         List<TrainingEntity> trainings = trainingRepository.findTrainingsByMultipleCriteria(criteria);
 
+        if(trainings.isEmpty()) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
         return trainingMapper.map2TO(trainings);
     }
 
     @Override
     public List<TrainingTO> findTrainingsWithLargestNumberOfEditions() {
         List<TrainingEntity> trainings = trainingRepository.findTrainingsWithLargestNumberOfEditions();
+
+        if(trainings.isEmpty()) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
 
         return trainingMapper.map2TO(trainings);
     }

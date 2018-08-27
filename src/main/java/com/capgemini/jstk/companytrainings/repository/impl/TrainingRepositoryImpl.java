@@ -57,11 +57,10 @@ public class TrainingRepositoryImpl implements TrainingRepositoryCustom {
                 .fetch();
     }
 
-    //TODO: dlaczego final?
     @Override
     public List<TrainingEntity> findTrainingsByTagsQueryDSL(String tag) {
-        final JPAQuery<TrainingEntity> query = new JPAQuery<>(em);
-        final QTrainingEntity training = QTrainingEntity.trainingEntity;
+        JPAQuery<TrainingEntity> query = new JPAQuery<>(em);
+        QTrainingEntity training = QTrainingEntity.trainingEntity;
 
         return query.from(training).where(training.tags.containsIgnoreCase(tag)).fetch();
     }

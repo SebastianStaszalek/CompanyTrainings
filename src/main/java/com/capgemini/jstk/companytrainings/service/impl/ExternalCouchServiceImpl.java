@@ -4,10 +4,12 @@ import com.capgemini.jstk.companytrainings.domain.ExternalCouchEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
+import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.ExternalCouchMapper;
 import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.ExternalCouchRepository;
 import com.capgemini.jstk.companytrainings.service.ExternalCouchService;
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-//TODO: napisz jakies testy na usuwanie!
 @Service
 @Transactional
 public class ExternalCouchServiceImpl implements ExternalCouchService {
@@ -46,6 +47,7 @@ public class ExternalCouchServiceImpl implements ExternalCouchService {
 
     @Override
     public ExternalCouchTO save(ExternalCouchTO externalCouch) {
+        Preconditions.checkNotNull(externalCouch, Message.EMPTY_OBJECT);
         ExternalCouchEntity couchEntity = couchMapper.map(externalCouch);
 
         return couchMapper.map(couchRepository.save(couchEntity));
@@ -53,6 +55,7 @@ public class ExternalCouchServiceImpl implements ExternalCouchService {
 
     @Override
     public ExternalCouchTO update(ExternalCouchTO externalCouch) {
+        Preconditions.checkNotNull(externalCouch.getId(), Message.EMPTY_ID);
         ExternalCouchEntity couchEntity = couchRepository.findOne(externalCouch.getId());
 
         if(!externalCouch.getVersion().equals(couchEntity.getVersion())) {
@@ -66,11 +69,13 @@ public class ExternalCouchServiceImpl implements ExternalCouchService {
 
     @Override
     public void deleteExternalCouch(ExternalCouchTO externalCouch) {
+        Preconditions.checkNotNull(externalCouch.getId(), Message.EMPTY_ID);
         couchRepository.delete(externalCouch.getId());
     }
 
     @Override
     public Set<TrainingTO> getAllTrainingsByCouchId(Long studentId) {
+        Preconditions.checkNotNull(studentId, Message.EMPTY_ID);
         ExternalCouchEntity couchEntity = couchRepository.findOne(studentId);
 
         Set<TrainingEntity> trainingsList = couchEntity.getTrainings();

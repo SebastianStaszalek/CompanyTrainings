@@ -1,8 +1,11 @@
 package com.capgemini.jstk.companytrainings.domain;
 
-import com.capgemini.jstk.companytrainings.domain.enums.Grade;
 import com.capgemini.jstk.companytrainings.domain.enums.EmployeePosition;
-import lombok.*;
+import com.capgemini.jstk.companytrainings.domain.enums.Grade;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -34,7 +37,7 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     @ManyToOne
     private EmployeeEntity superior;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "EMPLOYEES_AS_COUCHES",
             joinColumns = {@JoinColumn(name = "EMPLOYEE_ID")},
             inverseJoinColumns = {@JoinColumn(name = "TRAINING_ID")}

@@ -144,8 +144,6 @@ public class TrainingServiceTest {
 
     }
 
-
-    //TODO:dlaczego ten test przestal dzialac?
     @Test
     public void shouldAddExternalCouchToTrainingAndFindHimById() {
         //given
@@ -155,7 +153,7 @@ public class TrainingServiceTest {
         ExternalCouchTO externalCouch = testTO.createFirstExternalCouch();
         ExternalCouchTO savedCouch = externalCouchService.save(externalCouch);
 
-        //Set<ExternalCouchTO> couches = trainingService.findAllExternalCoachesByTrainingId(savedTraining.getId());
+        Set<ExternalCouchTO> couches = trainingService.findAllExternalCoachesByTrainingId(savedTraining.getId());
 
         //when
         trainingService.addExternalCouchToTraining(savedTraining, savedCouch);
@@ -163,9 +161,8 @@ public class TrainingServiceTest {
         Set<ExternalCouchTO> couchesToCheck = trainingService.findAllExternalCoachesByTrainingId(savedTraining.getId());
 
         //then
-//        assertThat(couches.size()).isNotEqualTo(couchesToCheck.size());
-//        assertThat(couchesToCheck.size()).isEqualTo(couches.size()+1);
-        assertThat(couchesToCheck.size()).isEqualTo(1);
+        assertThat(couches.size()).isNotEqualTo(couchesToCheck.size());
+        assertThat(couchesToCheck.size()).isEqualTo(couches.size()+1);
 
     }
 
@@ -429,7 +426,6 @@ public class TrainingServiceTest {
         assertThat(trainingsList.size()).isEqualTo(2);
     }
 
-    //TODO: jesli w testach ustawiasz start date to musisz tez and date!
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindSumOfTrainingsHoursByCouchAndYear() {
