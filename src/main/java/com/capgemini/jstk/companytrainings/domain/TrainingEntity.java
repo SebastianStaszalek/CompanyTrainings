@@ -42,14 +42,14 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
     @Column(nullable = false)
     private int costPerStudent;
 
-    @Column(length = 245)
+    @Column(length = 100)
     private String tags;
 
     @Enumerated
     @Column(nullable = false)
     private TrainingStatus status = TrainingStatus.PLANNED;
 
-    @ManyToMany(mappedBy = "trainingsAsCouch", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "trainingsAsCouch")
     private Set<EmployeeEntity> couches = new HashSet<>();
 
     @ManyToMany(mappedBy = "trainingsAsStudent")
@@ -63,27 +63,32 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
         newCouch.updateTrainingAsCouchReference(this);
     }
 
-//    protected void updateCouchReference(EmployeeEntity employeeEntity) {
-//        this.couches.add(employeeEntity);
-//    }
-
     public void addStudent(EmployeeEntity newStudent) {
         this.students.add(newStudent);
         newStudent.updateTrainingAsStudentReference(this);
     }
-
-//    protected void updateStudentReference(EmployeeEntity employeeEntity) {
-//        this.students.add(employeeEntity);
-//    }
 
     public void addExternalCouch(ExternalCouchEntity newCouch) {
         this.externalCouches.add(newCouch);
         newCouch.updateTrainingAsExternalCouchReference(this);
     }
 
-//    protected void updateCouchReference(ExternalCouchEntity externalCouchEntity) {
-//        this.externalCouches.add(externalCouchEntity);
-//    }
+    public void removeCouchesReferences() {
+        for (EmployeeEntity c : couches) {
+            c.removeTrainingAsCouch(this);
+        }
+    }
 
+    public void removeStudentsReferences() {
+        for (EmployeeEntity s : students) {
+            s.removeTrainingAsStudent(this);
+        }
+    }
+
+    public void removeExternalCouchesReferences() {
+        for (ExternalCouchEntity ex : externalCouches) {
+            ex.removeTrainingAsExternalCouch(this);
+        }
+    }
 
 }

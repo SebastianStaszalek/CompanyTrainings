@@ -9,10 +9,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,7 +114,41 @@ public class EmployeeServiceTest {
 
     }
 
-    //TODO: pomysl jak sprawdzic przelozonego pracownika!
+    @Test
+    public void shouldDeleteEmployeeWithReferencesToTraining() {
+        //given
+        EmployeeTO student = testTO.createFirstEmployee();
+        EmployeeTO savedStudent = employeeService.save(student);
+
+        EmployeeTO couch = testTO.createFirstEmployee();
+        EmployeeTO savedCouch = employeeService.save(couch);
+
+        TrainingTO training = testTO.createFirstTraining();
+        TrainingTO savedTraining = trainingService.save(training);
+
+        trainingService.addStudentToTraining(savedTraining, savedStudent);
+        trainingService.addCoachToTraining(savedTraining, savedCouch);
+
+        //when
+        employeeService.deleteEmployee(savedStudent);
+        employeeService.deleteEmployee(savedCouch);
+
+        TrainingTO trainingToCheck = trainingService.findTrainingById(savedTraining.getId());
+
+        Set<EmployeeTO> students = trainingService.findAllStudentsByTrainingId(savedTraining.getId());
+        Set<EmployeeTO> couches = trainingService.findAllCoachesByTrainingId(savedTraining.getId());
+
+        EmployeeTO studentToCheck = employeeService.findEmployeeById(savedStudent.getId());
+        EmployeeTO couchToCheck = employeeService.findEmployeeById(savedCouch.getId());
+
+        //then
+        assertThat(trainingToCheck).isNotNull();
+        assertThat(students).isNullOrEmpty();
+        assertThat(couches).isNullOrEmpty();
+        assertThat(studentToCheck).isNull();
+        assertThat(couchToCheck).isNull();
+    }
+
     @Test
     public void shouldAddSuperiorToEmployee() {
         //given
@@ -174,9 +210,9 @@ public class EmployeeServiceTest {
         TrainingTO training2 = testTO.createFirstTraining();
         TrainingTO training3 = testTO.createFirstTraining();
 
-       training1.setCostPerStudent(5000);
-       training2.setCostPerStudent(1000);
-       training3.setCostPerStudent(2000);
+        training1.setCostPerStudent(5000);
+        training2.setCostPerStudent(1000);
+        training3.setCostPerStudent(2000);
 
         TrainingTO savedTraining1 = trainingService.save(training1);
         TrainingTO savedTraining2 = trainingService.save(training2);
@@ -200,8 +236,9 @@ public class EmployeeServiceTest {
         //then
         assertThat(count).isEqualTo(8000);
     }
-//TODO: pomysl jak lepiej skonstruowac ten test
+
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldFindEmployeesWithMaxHoursSpendOnAllFinishedTrainings() {
         //given
         EmployeeTO employee1 = testTO.createFirstEmployee();

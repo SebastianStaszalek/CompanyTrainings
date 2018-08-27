@@ -25,6 +25,8 @@ public interface TrainingService {
 
     Set<EmployeeTO> findAllCoachesByTrainingId(Long id);
 
+    Set<ExternalCouchTO> findAllExternalCoachesByTrainingId(Long id);
+
     void addStudentToTraining(TrainingTO training, EmployeeTO employee);
 
     void addCoachToTraining(TrainingTO training, EmployeeTO employee);

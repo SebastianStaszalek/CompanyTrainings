@@ -56,4 +56,12 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     protected void updateTrainingAsStudentReference(TrainingEntity trainingEntity) {
         this.trainingsAsStudent.add(trainingEntity);
     }
+
+    protected void removeTrainingAsStudent(TrainingEntity trainingEntity) {
+        this.trainingsAsStudent.remove(trainingEntity);
+    }
+
+    protected void removeTrainingAsCouch(TrainingEntity trainingEntity) {
+        this.trainingsAsCouch.remove(trainingEntity);
+    }
 }

@@ -36,4 +36,8 @@ public class ExternalCouchEntity extends AbstractEntity implements Serializable 
         this.trainings.add(trainingEntity);
     }
 
+    protected void removeTrainingAsExternalCouch(TrainingEntity trainingEntity) {
+        this.trainings.remove(trainingEntity);
+    }
+
 }

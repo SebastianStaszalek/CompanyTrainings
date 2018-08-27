@@ -9,17 +9,16 @@ import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
 import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
-import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
-import com.capgemini.jstk.companytrainings.exception.EmployeeTrainingException;
-import com.capgemini.jstk.companytrainings.exception.IncorrectDatesException;
-import com.capgemini.jstk.companytrainings.exception.TrainingStatusException;
+import com.capgemini.jstk.companytrainings.exception.*;
 import com.capgemini.jstk.companytrainings.exception.message.Message;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
+import com.capgemini.jstk.companytrainings.mapper.ExternalCouchMapper;
 import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.EmployeeRepository;
 import com.capgemini.jstk.companytrainings.repository.ExternalCouchRepository;
 import com.capgemini.jstk.companytrainings.repository.TrainingRepository;
 import com.capgemini.jstk.companytrainings.service.TrainingService;
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//TODO: jak testowac relacje skoro nie mapujemy wszystkich id?
-//TODO: pomysl czy zawsze sprawdzasz status szkolenia
 @Service
 @Transactional
 public class TrainingServiceImp implements TrainingService {
@@ -47,20 +44,23 @@ public class TrainingServiceImp implements TrainingService {
     private TrainingRepository trainingRepository;
 
     private ExternalCouchRepository couchRepository;
+    private ExternalCouchMapper couchMapper;
 
     @Autowired
     public TrainingServiceImp(EmployeeRepository employeeRepository, TrainingMapper trainingMapper,
                               TrainingRepository trainingRepository, EmployeeMapper employeeMapper,
-                              ExternalCouchRepository couchRepository) {
+                              ExternalCouchRepository couchRepository, ExternalCouchMapper couchMapper) {
         this.employeeRepository = employeeRepository;
         this.trainingMapper = trainingMapper;
         this.trainingRepository = trainingRepository;
         this.employeeMapper = employeeMapper;
         this.couchRepository = couchRepository;
+        this.couchMapper = couchMapper;
     }
 
     @Override
     public TrainingTO findTrainingById(Long id) {
+        Preconditions.checkNotNull(id, Message.EMPTY_ID);
         return trainingMapper.map(trainingRepository.findOne(id));
     }
 
@@ -71,6 +71,7 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO save(TrainingTO training) {
+        Preconditions.checkNotNull(training, Message.EMPTY_OBJECT);
         validateDates(training);
 
         TrainingEntity trainingEntity = trainingMapper.map(training);
@@ -80,10 +81,10 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public TrainingTO update(TrainingTO training) {
+        Preconditions.checkNotNull(training.getId(), Message.EMPTY_ID);
         validateDates(training);
 
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
-
         checkIfTrainingIsNotCancelled(trainingEntity);
 
         if(!training.getVersion().equals(trainingEntity.getVersion())) {
@@ -93,30 +94,75 @@ public class TrainingServiceImp implements TrainingService {
         TrainingEntity trainingToUpdate = trainingMapper.map(training, trainingEntity);
 
         return trainingMapper.map(trainingToUpdate);
-        //return trainingMapper.map(trainingRepository.save(trainingToUpdate));
     }
 
     @Override
     public void deleteTraining(TrainingTO training) {
+        Preconditions.checkNotNull(training, Message.EMPTY_ID);
+        TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
+        trainingEntity.removeStudentsReferences();
+        trainingEntity.removeCouchesReferences();
+        trainingEntity.removeExternalCouchesReferences();
+
         trainingRepository.delete(training.getId());
     }
 
     @Override
     public Set<EmployeeTO> findAllStudentsByTrainingId(Long id) {
+        Preconditions.checkNotNull(id, Message.EMPTY_ID);
         TrainingEntity trainingEntity = trainingRepository.findOne(id);
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
         return employeeMapper.map2TOSet(trainingEntity.getStudents());
     }
 
     @Override
     public Set<EmployeeTO> findAllCoachesByTrainingId(Long id) {
+        Preconditions.checkNotNull(id, Message.EMPTY_ID);
         TrainingEntity trainingEntity = trainingRepository.findOne(id);
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
         return employeeMapper.map2TOSet(trainingEntity.getCouches());
     }
 
     @Override
+    public Set<ExternalCouchTO> findAllExternalCoachesByTrainingId(Long id) {
+        Preconditions.checkNotNull(id, Message.EMPTY_ID);
+        TrainingEntity trainingEntity = trainingRepository.findOne(id);
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
+        return couchMapper.map2TOSet(trainingEntity.getExternalCouches());
+    }
+
+    @Override
     public void addStudentToTraining(TrainingTO training, EmployeeTO employee) {
+        Preconditions.checkNotNull(training.getId(), Message.EMPTY_ID);
+        Preconditions.checkNotNull(employee.getId(), Message.EMPTY_ID);
+
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
+        if(employeeEntity == null) {
+            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_FOUND);
+        }
 
         checkIfTrainingIsNotFinished(trainingEntity);
 
@@ -158,8 +204,19 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public void addCoachToTraining(TrainingTO training, EmployeeTO employee) {
+        Preconditions.checkNotNull(training.getId(), Message.EMPTY_ID);
+        Preconditions.checkNotNull(employee.getId(), Message.EMPTY_ID);
+
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         EmployeeEntity employeeEntity = employeeRepository.findOne(employee.getId());
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
+        if(employeeEntity == null) {
+            throw new EmployeeNotFoundException(Message.EMPLOYEE_NOT_FOUND);
+        }
 
         checkIfTrainingIsNotCancelled(trainingEntity);
 
@@ -174,8 +231,19 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public void addExternalCouchToTraining(TrainingTO training, ExternalCouchTO externalCouch) {
+        Preconditions.checkNotNull(training.getId(), Message.EMPTY_ID);
+        Preconditions.checkNotNull(externalCouch.getId(), Message.EMPTY_ID);
+
         TrainingEntity trainingEntity = trainingRepository.findOne(training.getId());
         ExternalCouchEntity couchEntity = couchRepository.findOne(externalCouch.getId());
+
+        if(trainingEntity == null) {
+            throw new TrainingNotFoundException(Message.TRAINING_NOT_FOUND);
+        }
+
+        if(couchEntity == null) {
+            throw new ExternalCouchNotFoundException(Message.EXTERNAL_COUCH__NOT_FOUND);
+        }
 
         checkIfTrainingIsNotCancelled(trainingEntity);
 
@@ -192,17 +260,24 @@ public class TrainingServiceImp implements TrainingService {
 
     @Override
     public List<TrainingTO> findTrainingsByTag(String tag) {
+        Preconditions.checkNotNull(tag, Message.EMPTY_FIELD);
+
         List<TrainingEntity> trainings = trainingRepository.findTrainingsByTagsQueryDSL(tag);
         return trainingMapper.map2TO(trainings);
     }
 
     @Override
     public Double findSumOfTrainingHoursByCoachAndYear(Long id, int year) {
+        Preconditions.checkNotNull(id, Message.EMPTY_ID);
+        Preconditions.checkArgument(year == 0 , Message.EMPTY_FIELD);
+
         return trainingRepository.findSumOfTrainingHoursByCoachAndYear(id, year);
     }
 
     @Override
     public List<TrainingTO> findTrainingsByMultipleCriteria(TrainingCriteriaSearchTO criteria) {
+        Preconditions.checkNotNull(criteria, Message.EMPTY_OBJECT);
+
         List<TrainingEntity> trainings = trainingRepository.findTrainingsByMultipleCriteria(criteria);
 
         return trainingMapper.map2TO(trainings);

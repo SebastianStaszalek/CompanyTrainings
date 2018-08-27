@@ -59,4 +59,8 @@ public class TrainingMapper {
         return trainingEntities.stream().map(this::map).collect(Collectors.toList());
     }
 
+    public Set<TrainingTO> map2TOSet(Set<TrainingEntity> trainingEntities) {
+        return trainingEntities.stream().map(this::map).collect(Collectors.toSet());
+    }
+
 }

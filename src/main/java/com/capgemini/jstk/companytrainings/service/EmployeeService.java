@@ -1,9 +1,11 @@
 package com.capgemini.jstk.companytrainings.service;
 
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface EmployeeService {
 
@@ -24,5 +26,9 @@ public interface EmployeeService {
     Integer countTotalCostOfEmployeeTrainings(Long employeeId);
 
     List<EmployeeTO> findEmployeesWithMaxHoursSpentOnTrainings();
+
+    Set<TrainingTO> getAllEmployeeTrainingsAsStudent(Long studentId);
+
+    Set<TrainingTO> getAllEmployeeTrainingsAsCouch(Long couchId);
 
 }

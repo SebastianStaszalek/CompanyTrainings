@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.domain.enums.TrainingCharacter;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingStatus;
 import com.capgemini.jstk.companytrainings.domain.enums.TrainingType;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingCriteriaSearchTO;
 import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.exception.BudgetExceededException;
@@ -31,6 +32,9 @@ public class TrainingServiceTest {
 
     @Autowired
     EmployeeService employeeService;
+
+    @Autowired
+    ExternalCouchService externalCouchService;
 
     @Autowired
     TestTO testTO;
@@ -138,6 +142,73 @@ public class TrainingServiceTest {
         assertThat(students.size()).isNotEqualTo(studentsToCheck.size());
         assertThat(studentsToCheck.size()).isEqualTo(students.size()+1);
 
+    }
+
+
+    //TODO:dlaczego ten test przestal dzialac?
+    @Test
+    public void shouldAddExternalCouchToTrainingAndFindHimById() {
+        //given
+        TrainingTO training = testTO.createFirstTraining();
+        TrainingTO savedTraining = trainingService.save(training);
+
+        ExternalCouchTO externalCouch = testTO.createFirstExternalCouch();
+        ExternalCouchTO savedCouch = externalCouchService.save(externalCouch);
+
+        //Set<ExternalCouchTO> couches = trainingService.findAllExternalCoachesByTrainingId(savedTraining.getId());
+
+        //when
+        trainingService.addExternalCouchToTraining(savedTraining, savedCouch);
+
+        Set<ExternalCouchTO> couchesToCheck = trainingService.findAllExternalCoachesByTrainingId(savedTraining.getId());
+
+        //then
+//        assertThat(couches.size()).isNotEqualTo(couchesToCheck.size());
+//        assertThat(couchesToCheck.size()).isEqualTo(couches.size()+1);
+        assertThat(couchesToCheck.size()).isEqualTo(1);
+
+    }
+
+    @Test
+    public void shouldRemoveTrainingReferenceWhenDeletingTraining() {
+        //given
+        TrainingTO training = testTO.createFirstTraining();
+        TrainingTO savedTraining = trainingService.save(training);
+
+        EmployeeTO student = testTO.createFirstEmployee();
+        EmployeeTO savedStudent = employeeService.save(student);
+
+        EmployeeTO couch = testTO.createFirstEmployee();
+        EmployeeTO savedCouch = employeeService.save(couch);
+
+        ExternalCouchTO externalCouch = testTO.createFirstExternalCouch();
+        ExternalCouchTO savedExternalCouch = externalCouchService.save(externalCouch);
+
+        trainingService.addStudentToTraining(savedTraining, savedStudent);
+        trainingService.addCoachToTraining(savedTraining, savedCouch);
+        trainingService.addExternalCouchToTraining(savedTraining, savedExternalCouch);
+
+        TrainingTO trainingToDelete = trainingService.findTrainingById(savedTraining.getId());
+
+        //when
+        trainingService.deleteTraining(trainingToDelete);
+
+        TrainingTO trainingToCheck = trainingService.findTrainingById(savedTraining.getId());
+
+        Set<TrainingTO> studentTrainings = employeeService.getAllEmployeeTrainingsAsStudent(savedStudent.getId());
+        Set<TrainingTO> couchTrainings = employeeService.getAllEmployeeTrainingsAsCouch(savedCouch.getId());
+        Set<TrainingTO> externalCouchTrainings = externalCouchService.getAllTrainingsByCouchId(savedExternalCouch.getId());
+
+        EmployeeTO studentToCheck = employeeService.findEmployeeById(savedStudent.getId());
+        EmployeeTO couchToCheck = employeeService.findEmployeeById(savedCouch.getId());
+
+        //then
+        assertThat(studentTrainings).isNullOrEmpty();
+        assertThat(couchTrainings).isNullOrEmpty();
+        assertThat(externalCouchTrainings).isNullOrEmpty();
+        assertThat(studentToCheck).isNotNull();
+        assertThat(couchToCheck).isNotNull();
+        assertThat(trainingToCheck).isNull();
     }
 
     @Test(expected = EmployeeTrainingException.class)
@@ -409,7 +480,7 @@ public class TrainingServiceTest {
 
     @Test()
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-    public void shouldFindTrainingsByMultipleCriteriaWithAllFieldsFilled() {
+    public void shouldFindTrainingsByMultipleCriteriaWithAllParametersFilled() {
         //given
         TrainingTO training1 = testTO.createFirstTraining();
         TrainingTO training2 = testTO.createFirstTraining();
@@ -454,6 +525,33 @@ public class TrainingServiceTest {
         //then
         assertThat(trainingsList.size()).isEqualTo(1);
         assertThat(foundTraining.getTitle()).isEqualToIgnoringCase(criteria.getTitle());
+    }
+
+    @Test()
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+    public void shouldFindTrainingsBySearchCriteriaWithOnlyOneCostParameter() {
+        //given
+        TrainingTO training1 = testTO.createFirstTraining();
+        TrainingTO training2 = testTO.createFirstTraining();
+        TrainingTO training3 = testTO.createFirstTraining();
+
+        training1.setCostPerStudent(1000);
+        training2.setCostPerStudent(5000);
+        training3.setCostPerStudent(2000);
+
+        trainingService.save(training1);
+        trainingService.save(training2);
+        trainingService.save(training3);
+
+        TrainingCriteriaSearchTO criteria = TrainingCriteriaSearchTO.builder()
+                .costFrom(2000)
+                .build();
+
+        //when
+        List<TrainingTO> trainingsList = trainingService.findTrainingsByMultipleCriteria(criteria);
+
+        //then
+        assertThat(trainingsList.size()).isEqualTo(2);
     }
 
     @Test

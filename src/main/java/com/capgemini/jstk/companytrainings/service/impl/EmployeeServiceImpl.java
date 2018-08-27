@@ -3,7 +3,9 @@ package com.capgemini.jstk.companytrainings.service.impl;
 import com.capgemini.jstk.companytrainings.domain.EmployeeEntity;
 import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.EmployeeTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.mapper.EmployeeMapper;
+import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.EmployeeRepository;
 import com.capgemini.jstk.companytrainings.service.EmployeeService;
 import com.capgemini.jstk.companytrainings.service.TrainingService;
@@ -14,6 +16,7 @@ import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -23,15 +26,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeMapper employeeMapper;
     private EmployeeRepository employeeRepository;
 
-    //TODO: czy to jest potrzebne?
-    private TrainingService trainingService;
+    private TrainingMapper trainingMapper;
 
     @Autowired
     public EmployeeServiceImpl(EmployeeMapper employeeMapper, EmployeeRepository employeeRepository,
-                               TrainingService trainingService) {
+                               TrainingMapper trainingMapper) {
         this.employeeMapper = employeeMapper;
         this.employeeRepository = employeeRepository;
-        this.trainingService = trainingService;
+        this.trainingMapper = trainingMapper;
     }
 
     @Override
@@ -111,5 +113,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<EmployeeEntity> employeesList = employeeRepository.findStudentsWithMaxHoursSpentOnTrainings();
 
         return employeeMapper.map2TO(employeesList);
+    }
+
+    @Override
+    public Set<TrainingTO> getAllEmployeeTrainingsAsStudent(Long studentId) {
+        EmployeeEntity employeeEntity = employeeRepository.findOne(studentId);
+
+        Set<TrainingEntity> trainingsList = employeeEntity.getTrainingsAsStudent();
+
+        return trainingMapper.map2TOSet(trainingsList);
+    }
+
+    @Override
+    public Set<TrainingTO> getAllEmployeeTrainingsAsCouch(Long couchId) {
+        EmployeeEntity employeeEntity = employeeRepository.findOne(couchId);
+
+        Set<TrainingEntity> trainingsList = employeeEntity.getTrainingsAsStudent();
+
+        return trainingMapper.map2TOSet(trainingsList);
     }
 }

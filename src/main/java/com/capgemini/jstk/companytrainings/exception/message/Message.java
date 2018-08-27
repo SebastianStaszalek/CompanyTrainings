@@ -15,4 +15,11 @@ public final class Message {
     public static final String TRAINING_FINISHED = "Training is already finished!";
 
     public static final String INCORRECT_DATES = "The end date cannot be before start date!";
+
+    public static final String EMPTY_ID = "Id field should not be empty";
+    public static final String EMPTY_OBJECT = "All fields are empty!";
+    public static final String EMPTY_FIELD = "Search field should not empty!";
+    public static final String TRAINING_NOT_FOUND = "Training was not found";
+    public static final String EMPLOYEE_NOT_FOUND = "Employee was not found";
+    public static final String EXTERNAL_COUCH__NOT_FOUND = "Employee was not found";
 }

@@ -5,6 +5,7 @@ import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -43,5 +44,9 @@ public class ExternalCouchMapper {
 
     public List<ExternalCouchTO> map2TO(List<ExternalCouchEntity> externalCouchEntities) {
         return externalCouchEntities.stream().map(this::map).collect(Collectors.toList());
+    }
+
+    public Set<ExternalCouchTO> map2TOSet(Set<ExternalCouchEntity> externalCouchEntities) {
+        return externalCouchEntities.stream().map(this::map).collect(Collectors.toSet());
     }
 }

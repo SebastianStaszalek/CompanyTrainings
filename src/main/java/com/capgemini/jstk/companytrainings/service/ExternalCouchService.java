@@ -1,8 +1,10 @@
 package com.capgemini.jstk.companytrainings.service;
 
 import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExternalCouchService {
 
@@ -15,4 +17,6 @@ public interface ExternalCouchService {
     ExternalCouchTO update(ExternalCouchTO externalCouch);
 
     void deleteExternalCouch(ExternalCouchTO externalCouch);
+
+    Set<TrainingTO> getAllTrainingsByCouchId(Long studentId);
 }

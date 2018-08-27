@@ -1,8 +1,11 @@
 package com.capgemini.jstk.companytrainings.service.impl;
 
 import com.capgemini.jstk.companytrainings.domain.ExternalCouchEntity;
+import com.capgemini.jstk.companytrainings.domain.TrainingEntity;
 import com.capgemini.jstk.companytrainings.dto.ExternalCouchTO;
+import com.capgemini.jstk.companytrainings.dto.TrainingTO;
 import com.capgemini.jstk.companytrainings.mapper.ExternalCouchMapper;
+import com.capgemini.jstk.companytrainings.mapper.TrainingMapper;
 import com.capgemini.jstk.companytrainings.repository.ExternalCouchRepository;
 import com.capgemini.jstk.companytrainings.service.ExternalCouchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 //TODO: napisz jakies testy na usuwanie!
 @Service
@@ -20,10 +24,14 @@ public class ExternalCouchServiceImpl implements ExternalCouchService {
     private ExternalCouchMapper couchMapper;
     private ExternalCouchRepository couchRepository;
 
+    private TrainingMapper trainingMapper;
+
     @Autowired
-    public ExternalCouchServiceImpl(ExternalCouchMapper couchMapper, ExternalCouchRepository couchRepository) {
+    public ExternalCouchServiceImpl(ExternalCouchMapper couchMapper, ExternalCouchRepository couchRepository,
+                                    TrainingMapper trainingMapper) {
         this.couchMapper = couchMapper;
         this.couchRepository = couchRepository;
+        this.trainingMapper = trainingMapper;
     }
 
     @Override
@@ -59,5 +67,14 @@ public class ExternalCouchServiceImpl implements ExternalCouchService {
     @Override
     public void deleteExternalCouch(ExternalCouchTO externalCouch) {
         couchRepository.delete(externalCouch.getId());
+    }
+
+    @Override
+    public Set<TrainingTO> getAllTrainingsByCouchId(Long studentId) {
+        ExternalCouchEntity couchEntity = couchRepository.findOne(studentId);
+
+        Set<TrainingEntity> trainingsList = couchEntity.getTrainings();
+
+        return trainingMapper.map2TOSet(trainingsList);
     }
 }
